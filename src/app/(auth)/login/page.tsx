@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,6 +27,10 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   });
 
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    await signIn("credentials", { ...values, callbackUrl: "/dashboard" });
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -34,13 +39,7 @@ export default function LoginPage() {
       </div>
 
       <Form {...form}>
-        <form
-          action={async (formData) => {
-            "use server";
-            await signIn("credentials", formData);
-          }}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="email"
