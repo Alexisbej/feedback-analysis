@@ -1,10 +1,9 @@
-"use client";
+import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useSession } from "next-auth/react";
 
-export default function ProfilePage() {
-  const { data: session } = useSession();
+export default async function ProfilePage() {
+  const session = await auth();
 
   return (
     <div className="container max-w-2xl py-8">
