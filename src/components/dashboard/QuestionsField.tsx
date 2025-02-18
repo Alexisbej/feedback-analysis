@@ -7,15 +7,16 @@ interface QuestionsFieldProps {
   onChange: (questions: Omit<Question, "id" | "templateId">[]) => void;
 }
 
-export function QuestionFields({
-  questions,
-  onChange,
-}: QuestionsFieldProps) {
+export function QuestionFields({ questions, onChange }: QuestionsFieldProps) {
   const addQuestion = () => {
     onChange([...questions, { question: "", type: "TEXT", options: [] }]);
   };
 
-  const updateQuestion = (index: number, field: keyof Question, value: QuestionType) => {
+  const updateQuestion = (
+    index: number,
+    field: keyof Question,
+    value: QuestionType,
+  ) => {
     const newQuestions = [...questions];
     if (field === "type") {
       newQuestions[index].type = value;
@@ -23,7 +24,7 @@ export function QuestionFields({
         newQuestions[index].options = [];
       }
     } else {
-      newQuestions[index][field] = value;
+      newQuestions[index].question = value;
     }
     onChange(newQuestions);
   };
@@ -52,7 +53,11 @@ export function QuestionFields({
             <Input
               value={q.question}
               onChange={(e) =>
-                updateQuestion(qIndex, "question", e.target.value)
+                updateQuestion(
+                  qIndex,
+                  "question",
+                  e.target.value as QuestionType,
+                )
               }
               placeholder="Enter your question"
               className="mt-1 w-full"
