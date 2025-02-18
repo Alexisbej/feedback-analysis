@@ -2,8 +2,8 @@ import { auth } from "@/auth";
 import { AppSidebar, Business } from "@/components/AppSidebar";
 import SignoutButton from "@/components/SignoutButton";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { prisma } from "../../../../prisma/prisma";
 import { redirect } from "next/navigation";
+import { prisma } from "../../../../prisma/prisma";
 
 async function getBusinessesForAdmin(userId: string): Promise<Business[]> {
   const tenants = await prisma.tenant.findMany({
@@ -39,7 +39,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/register");
 
   const businesses = await getBusinessesForAdmin(session.user.id!);
 

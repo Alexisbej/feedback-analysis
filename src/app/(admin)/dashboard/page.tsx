@@ -1,6 +1,4 @@
-// app/admin/dashboard/page.tsx
 import { auth } from "@/auth";
-
 import FeedbackList from "@/components/dashboard/FeedbackList";
 import MetricsCard from "@/components/dashboard/MetricsCard";
 // import SentimentChart from "@/components/dashboard/SentimentChart";
@@ -10,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "../../../../prisma/prisma";
 
 interface DashboardProps {
-  searchParams: { businessId?: string };
+  searchParams: Promise<{ businessId?: string }>;
 }
 
 export default async function AdminDashboardPage({
@@ -18,18 +16,14 @@ export default async function AdminDashboardPage({
 }: DashboardProps) {
   const session = await auth();
   if (!session?.user || session.user.role !== "ADMIN") {
-    return redirect("/login");
+    return redirect("/register");
   }
 
-  // In this example we expect a businessId to be provided as a query parameter.
-  const businessId = searchParams.businessId;
+  const businessId = (await searchParams).businessId;
   if (!businessId) {
     return <p>Error: businessId is missing from the query.</p>;
   }
 
-  // 1. Fetch dashboard metrics
-
-  // Number of campaigns (assumed to be Template records)
   const campaignsCount = await prisma.template.count({
     where: { tenantId: businessId },
   });
@@ -49,14 +43,12 @@ export default async function AdminDashboardPage({
     );
   }
 
-  // Overall feedback score: average of ratings for this tenant
   const feedbackAggregate = await prisma.feedback.aggregate({
     _avg: { rating: true },
     where: { tenantId: businessId, rating: { not: null } },
   });
   const overallFeedbackScore = feedbackAggregate._avg.rating || 0;
 
-  // Number of participants: count distinct users who submitted feedback
   const participantsGroup = await prisma.feedback.groupBy({
     by: ["userId"],
     where: { tenantId: businessId, userId: { not: null } },

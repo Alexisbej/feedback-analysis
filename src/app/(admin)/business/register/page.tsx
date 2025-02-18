@@ -9,7 +9,7 @@ async function createBusiness(formData: FormData) {
   "use server";
 
   const session = await auth();
-  if (!session?.user) return redirect("/login");
+  if (!session?.user) return redirect("/register");
 
   const name = formData.get("name") as string;
   const slug = formData.get("slug") as string;

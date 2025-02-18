@@ -10,10 +10,11 @@ import { generateQRAction } from "../../create-campaign/generate-qr.action";
 export default async function CampaignPage({
   params,
 }: {
-  params: { templateId: string };
+  params: Promise<{ templateId: string }>;
 }) {
+  const templateId = (await params).templateId;
   const template = await prisma.template.findUnique({
-    where: { id: params.templateId },
+    where: { id: templateId },
     include: {
       tenant: true,
       feedbackLinks: true,
@@ -96,7 +97,11 @@ export default async function CampaignPage({
                   <Input
                     type="datetime-local"
                     name="expiration"
-                    defaultValue={qrLink.expiration ? qrLink.expiration.toISOString().slice(0, 16) : ""}
+                    defaultValue={
+                      qrLink.expiration
+                        ? qrLink.expiration.toISOString().slice(0, 16)
+                        : ""
+                    }
                   />
                 </div>
 
@@ -105,7 +110,12 @@ export default async function CampaignPage({
                   <Input
                     type="number"
                     name="usageLimit"
-                    defaultValue={qrLink.usageLimit !== null && qrLink.usageLimit !== undefined ? qrLink.usageLimit.toString() : ""}
+                    defaultValue={
+                      qrLink.usageLimit !== null &&
+                      qrLink.usageLimit !== undefined
+                        ? qrLink.usageLimit.toString()
+                        : ""
+                    }
                     min="1"
                   />
                 </div>
@@ -128,7 +138,7 @@ export default async function CampaignPage({
       ) : (
         <div className="text-center py-12">
           <form action={generateQRAction}>
-            <input type="hidden" name="templateId" value={params.templateId} />
+            <input type="hidden" name="templateId" value={templateId} />
             <Button type="submit">
               <QrCode className="w-4 h-4 mr-2" />
               Generate QR Code

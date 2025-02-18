@@ -1,6 +1,4 @@
 import GoogleOAuthButton from "@/components/GoogleOAuthButton";
-import RegisterForm from "@/components/RegisterForm";
-import Link from "next/link";
 
 export default function RegisterPage() {
   return (
@@ -12,7 +10,7 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      <RegisterForm />
+      {/* <RegisterForm /> */}
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -24,16 +22,6 @@ export default function RegisterPage() {
       </div>
 
       <GoogleOAuthButton />
-
-      <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-primary underline-offset-4 hover:underline"
-        >
-          Sign in
-        </Link>
-      </p>
     </div>
   );
 }

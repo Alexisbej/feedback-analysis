@@ -6,7 +6,6 @@ import { ScrollProgress } from "@/components/magicui/scroll-progress";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import { MarqueeDemo } from "@/components/MarqueeDemo";
 import PricingSection from "@/components/PricingSection";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   BellIcon,
@@ -116,10 +115,6 @@ export default function Home() {
             </Link>
           </nav>
           <div className="flex space-x-4 items-center ">
-            <Button variant="outline">
-              <Link href="/login">Login</Link>
-            </Button>
-
             <Link href="/register">
               <RainbowButton>Start now for free</RainbowButton>
             </Link>
