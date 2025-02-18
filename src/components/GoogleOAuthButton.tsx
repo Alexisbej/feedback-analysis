@@ -6,7 +6,7 @@ export default function GoogleOAuthButton() {
     <form
       action={async () => {
         "use server";
-        await signIn("google", { redirectTo: "/dashboard" });
+        await signIn("google", { redirectTo: "/onboarding" });
       }}
     >
       <Button variant="outline" className="w-full">

@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -47,6 +48,7 @@ model User {
   image           String?           // from Auth.js
   password        String?           // your custom field
   role            Role              @default(USER)
+  onboardingCompleted Boolean       @default(false)
   resetToken      String?
   resetExpires    DateTime?
   consent         Boolean           @default(false)

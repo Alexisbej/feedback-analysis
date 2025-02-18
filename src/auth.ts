@@ -1,15 +1,11 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
 import { prisma } from "../prisma/prisma";
+import authConfig from "./auth.config";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  // @ts-expect-error - updated types for mw
   adapter: PrismaAdapter(prisma),
-  providers: [Google],
-  callbacks: {
-    async authorized({ auth }) {
-      console.log("auth", auth);
-      return !!auth?.user;
-    },
-  },
+  session: { strategy: "jwt" },
+  ...authConfig,
 });
