@@ -1,8 +1,8 @@
 "use client";
 
-import { handleRoleSelection } from "@/app/onboarding/actions/handleRoleSelection.action";
 import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
+import { handleRoleSelection } from "@/app/onboarding/handleRoleSelection.action";
 
 // ... existing code ...
 

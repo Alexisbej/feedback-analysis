@@ -39,6 +39,12 @@ enum Status {
   TRIALING
 }
 
+enum QuestionType {
+  TEXT
+  RATING
+  MULTIPLE_CHOICE
+}
+
 // The merged User model – combining your fields with Auth.js fields
 model User {
   id              String            @id @default(cuid())
@@ -147,7 +153,6 @@ model Feedback {
   rating          Int?             @db.SmallInt
   sentiment       FeedbackSentiment?
   metadata        Json?            // For storing IP, device info, etc.
-  channel         FeedbackChannel
   tenant          Tenant           @relation(fields: [tenantId], references: [id])
   tenantId        String
   template        Template?        @relation(fields: [templateId], references: [id])
@@ -161,16 +166,40 @@ model Feedback {
   @@index([createdAt])
 }
 
+model FeedbackLink {
+  id              String    @id @default(uuid())
+  template        Template  @relation(fields: [templateId], references: [id])
+  templateId      String
+  url             String    @unique
+  qrCodeImage     String?
+  expiration      DateTime?
+  usageLimit      Int?
+  currentUsage    Int       @default(0)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+}
+
 model Template {
   id              String        @id @default(uuid())
   name            String
-  fields          Json          // Custom form configuration
+  fields          Question[]    
   tenant          Tenant        @relation(fields: [tenantId], references: [id])
   tenantId        String
   feedbacks       Feedback[]
+  feedbackLinks   FeedbackLink[]
+  distributionMethod FeedbackChannel @default(QR_CODE)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
+
+model Question {
+  id              String        @id @default(uuid())  
+  question        String
+  type            QuestionType
+  options         String[]
+  template        Template      @relation(fields: [templateId], references: [id])
+  templateId      String
+} 
 
 model TenantSettings {
   id              String        @id @default(uuid())

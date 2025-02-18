@@ -43,6 +43,8 @@ export default {
         where: { id: token.id as string },
       });
 
+      if (!prismaUser) return session;
+
       session.user.role = prismaUser.role;
       session.user.id = prismaUser.id;
       session.user.onboardingCompleted = prismaUser.onboardingCompleted;
