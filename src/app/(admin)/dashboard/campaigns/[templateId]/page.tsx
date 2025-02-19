@@ -7,9 +7,9 @@ import { QRSettingsForm } from "@/features/campaign/components/QRSettingsForm";
 export default async function CampaignPage({
   params,
 }: {
-  params: { templateId: string };
+  params: Promise<{ templateId: string }>;
 }) {
-  const { templateId } = params;
+  const { templateId } = await params;
   const template = await getCampaignTemplate(templateId);
 
   if (!template) return <div>Template not found</div>;
