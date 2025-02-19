@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
@@ -30,6 +31,15 @@ export default async function ProfilePage() {
             </div>
           </div>
         </CardContent>
+
+        <form
+          action={async () => {
+            "use server";
+            await signOut({ redirectTo: "/" });
+          }}
+        >
+          <Button>Sign out</Button>
+        </form>
       </Card>
     </div>
   );
