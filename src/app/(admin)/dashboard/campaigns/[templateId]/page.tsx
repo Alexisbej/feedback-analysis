@@ -5,7 +5,8 @@ import { Download, QrCode } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "../../../../../../prisma/prisma";
-import { generateQRAction } from "../../create-campaign/generate-qr.action";
+import { generateQRAction } from "@/features/create-campaign/actions/generate-qr.action";
+
 
 export default async function CampaignPage({
   params,

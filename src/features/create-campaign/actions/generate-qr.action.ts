@@ -1,7 +1,8 @@
 "use server";
 
 import QRCode from "qrcode";
-import { prisma } from "../../../../../prisma/prisma";
+import { prisma } from "../../../../prisma/prisma";
+
 
 export async function generateQRAction(formData: FormData) {
   const templateId = formData.get("templateId")?.toString();

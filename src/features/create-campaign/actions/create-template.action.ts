@@ -1,10 +1,8 @@
-// actions/create-template.ts
 "use server";
 
 import { QuestionType } from "@prisma/client";
-import { prisma } from "../../../../../prisma/prisma";
+import { prisma } from "../../../../prisma/prisma";
 
-/* Added FormValues interface */
 interface FormValues {
   name: string;
   questions: {
