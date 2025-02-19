@@ -1,4 +1,3 @@
-// app/dashboard/admin/layout.tsx
 import { auth } from "@/auth";
 import { AppSidebar } from "@/components/AppSidebar";
 import SignoutButton from "@/components/SignoutButton";
