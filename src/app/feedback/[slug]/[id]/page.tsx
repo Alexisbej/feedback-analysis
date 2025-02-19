@@ -4,7 +4,7 @@ import { getFeedbackQuestions } from "@/features/feedback-collection/feedbackCol
 export default async function FeedbackPage({
   params,
 }: {
-  params: { slug: string; id: string };
+  params: Promise<{ slug: string; id: string }>;
 }) {
   const { slug, id } = await params;
   const questions = await getFeedbackQuestions(slug, id);

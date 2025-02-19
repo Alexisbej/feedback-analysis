@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
-import { AdminDashboard } from "@/features/dashboard/components/AdminDashboard";
-import { DashboardEmptyState } from "@/features/dashboard/components/DashboardEmptyState";
-import { getDashboardMetrics } from "@/features/dashboard/dashboardService";
 import { redirect } from "next/navigation";
+import { getDashboardMetrics } from "@/features/dashboard/dashboardService";
+import { DashboardEmptyState } from "@/features/dashboard/components/DashboardEmptyState";
+import { AdminDashboard } from "@/features/dashboard/components/AdminDashboard";
 
 interface DashboardProps {
   searchParams: Promise<{ businessId?: string }>;

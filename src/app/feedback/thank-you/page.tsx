@@ -1,11 +1,11 @@
 interface ThankYouPageProps {
-  searchParams?: {
+  searchParams?: Promise<{
     tenantId?: string
-  }
+  }>
 }
 
 export default async function ThankYouPage({ searchParams }: ThankYouPageProps) {
-  const tenantId = searchParams?.tenantId || 'default'
+  const tenantId = (await searchParams)?.tenantId || 'default'
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
