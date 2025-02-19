@@ -3,7 +3,6 @@
 import QRCode from "qrcode";
 import { prisma } from "../../../../prisma/prisma";
 
-
 export async function generateQRAction(formData: FormData) {
   const templateId = formData.get("templateId")?.toString();
   if (!templateId) throw new Error("Missing templateId");

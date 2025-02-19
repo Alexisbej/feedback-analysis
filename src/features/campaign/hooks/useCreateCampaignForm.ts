@@ -1,8 +1,8 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { createTemplateSchema } from "@/features/campaign/schemas/create-template.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createTemplateSchema } from "@/features/create-campaign/schemas/create-template.schema";
+import { useForm } from "react-hook-form";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { createTemplateAction } from "../actions/create-template.action";
@@ -57,7 +57,7 @@ export const useCreateCampaignForm = () => {
   const removeQuestion = (index: number) => {
     setValue(
       "questions",
-      questions.filter((_, i) => i !== index)
+      questions.filter((_, i) => i !== index),
     );
   };
 
@@ -90,5 +90,13 @@ export const useCreateCampaignForm = () => {
     router.push(`/dashboard?businessId=${tenantId}`);
   };
 
-  return { form, templateType, questions, addQuestion, removeQuestion, onSubmit, handleTemplateTypeChange };
+  return {
+    form,
+    templateType,
+    questions,
+    addQuestion,
+    removeQuestion,
+    onSubmit,
+    handleTemplateTypeChange,
+  };
 };
