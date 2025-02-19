@@ -3,7 +3,6 @@ import { DotPattern } from "@/components/magicui/dot-pattern";
 import { RainbowButton } from "@/components/magicui/rainbow-button";
 import { ScrollProgress } from "@/components/magicui/scroll-progress";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
-import { MarqueeDemo } from "@/components/MarqueeDemo";
 import PricingSection from "@/components/PricingSection";
 import { cn } from "@/lib/utils";
 import {
@@ -162,7 +161,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-gray-50 py-22">
+        {/* <section className="bg-gray-50 py-22">
           <div className="text-center mb-8">
             <h2 className="mb-4 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
               Trusted by Service Businesses Worldwide
@@ -172,7 +171,7 @@ export default function Home() {
             </p>
           </div>
           <MarqueeDemo />
-        </section>
+        </section> */}
       </main>
 
       <PricingSection />

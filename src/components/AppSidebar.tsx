@@ -89,13 +89,13 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
 
         {activeBusinessId && (
           <SidebarGroup>
-            <SidebarGroupLabel>Templates</SidebarGroupLabel>
+            <SidebarGroupLabel>Surveys</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {isLoading && (
                   <SidebarMenuItem>
                     <div className="text-sm text-muted-foreground px-4">
-                      Loading templates...
+                      Loading surveys...
                     </div>
                   </SidebarMenuItem>
                 )}
@@ -103,7 +103,7 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
                 {error && (
                   <SidebarMenuItem>
                     <div className="text-sm text-destructive px-4">
-                      Error loading templates
+                      Error loading surveys
                     </div>
                   </SidebarMenuItem>
                 )}

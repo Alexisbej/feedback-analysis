@@ -1,6 +1,5 @@
-import React from "react";
-import MetricsCard from "./MetricsCard";
 import FeedbackList from "./FeedbackList";
+import MetricsCard from "./MetricsCard";
 
 interface DashboardMetrics {
   campaignsCount: number;

@@ -4,8 +4,6 @@ import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { handleRoleSelection } from "@/app/onboarding/handleRoleSelection.action";
 
-// ... existing code ...
-
 type RoleCardProps = {
   role: "USER" | "ADMIN";
   title: string;

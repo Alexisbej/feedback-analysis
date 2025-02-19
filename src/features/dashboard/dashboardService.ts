@@ -23,6 +23,7 @@ export async function getDashboardMetrics(businessId: string) {
     participantsCount = participantsGroup.length;
   }
 
+
   return {
     campaignsCount,
     overallFeedbackScore,
