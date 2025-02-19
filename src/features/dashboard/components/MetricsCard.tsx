@@ -1,5 +1,3 @@
-// components/MetricsCard.tsx
-
 interface MetricsCardProps {
   title: string;
   value: string | number;

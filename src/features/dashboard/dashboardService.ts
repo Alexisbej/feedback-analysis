@@ -27,6 +27,5 @@ export async function getDashboardMetrics(businessId: string) {
     campaignsCount,
     overallFeedbackScore,
     participantsCount,
-    // Optionally, you can also compute sentiment data here.
   };
 }
