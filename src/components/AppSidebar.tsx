@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Template } from "@prisma/client";
 import {
   BarChart2,
   ChevronUp,
@@ -27,7 +28,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Template } from "@prisma/client";
 
 export interface Business {
   id: string;

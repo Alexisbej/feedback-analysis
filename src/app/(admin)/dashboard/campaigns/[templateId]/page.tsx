@@ -1,3 +1,4 @@
+import { generateQRAction } from "@/features/campaign/actions/generate-qr.action";
 import { getCampaignTemplate } from "@/features/campaign/campaignService";
 import { CampaignHeader } from "@/features/campaign/components/CampaignHeader";
 import { GenerateQRForm } from "@/features/campaign/components/GenerateQRForm";
@@ -38,7 +39,7 @@ export default async function CampaignPage({
           />
         </div>
       ) : (
-        <GenerateQRForm templateId={template.id} />
+        <GenerateQRForm templateId={template.id} action={generateQRAction} />
       )}
     </div>
   );

@@ -20,7 +20,7 @@ export default async function Layout({
       <AppSidebar businesses={businesses} user={session.user}>
         <SignoutButton />
       </AppSidebar>
-      <main className="ml-[var(--sidebar-width)]">{children}</main>
+      <main className="md:ml-[var(--sidebar-width)]">{children}</main>
     </SidebarProvider>
   );
 }

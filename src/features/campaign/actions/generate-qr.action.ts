@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import QRCode from "qrcode";
 import { prisma } from "../../../../prisma/prisma";
 
@@ -17,11 +18,13 @@ export async function generateQRAction(formData: FormData) {
   const url = `${process.env.BASE_URL}/feedback/${template.tenant.slug}/${templateId}`;
   const qrCode = await QRCode.toDataURL(url);
 
-  prisma.feedbackLink.create({
+  await prisma.feedbackLink.create({
     data: {
       templateId,
       url,
       qrCodeImage: qrCode,
     },
   });
+
+  revalidatePath("/feedback");
 }
