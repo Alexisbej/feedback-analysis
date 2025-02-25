@@ -1,14 +1,5 @@
 import { Button } from "@/components/ui/button";
-
-export type ResponseValue = string | number;
-
-export interface Question {
-  id: string;
-  tenantId: string; 
-  question: string;
-  type: "TEXT" | "RATING" | "MULTIPLE_CHOICE";
-  options?: string[];
-}
+import { Question, ResponseValue } from "../types";
 
 interface QuestionItemProps {
   question: Question;

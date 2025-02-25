@@ -4,12 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { submitFeedbackAction } from "../actions/submit-feedback.action";
-import { feedbackSubmitSchema } from "../schemas/feedback-submit.schema";
-import { ResponseValue } from "../components/QuestionItem"; 
-
-export type FeedbackFormValues = {
-  responses: Record<string, ResponseValue>;
-};
+import {
+  FeedbackFormValues,
+  ResponseValue,
+  feedbackSubmitSchema,
+} from "../types";
 
 export function useFeedbackForm(tenantId: string) {
   const router = useRouter();
