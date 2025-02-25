@@ -1,53 +1,105 @@
 "use client";
 
-import { useCreateCampaignForm } from "../hooks/useCreateCampaignForm";
-import { QuestionsList } from "./QuestionsList";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { createTemplateAction } from "../actions/create-template.action";
+import { CreateTemplateData, createTemplateSchema } from "../types";
+import QuestionList from "./QuestionsList";
 import { SurveyTypeSelector } from "./SurveyTypeSelector";
 
 export const CreateCampaignForm = () => {
-  const {
-    form,
-    templateType,
-    questions,
-    addQuestion,
-    removeQuestion,
-    onSubmit,
-    handleTemplateTypeChange,
-  } = useCreateCampaignForm();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tenantId = searchParams.get("tenantId") || "";
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<CreateTemplateData>({
+    resolver: zodResolver(createTemplateSchema),
+    defaultValues: {
+      templateType: "feedback",
+      name: "",
+      questions: [
+        {
+          text: "",
+          type: "TEXT",
+          options: [],
+        },
+      ],
+      tenantId,
+    },
+  });
+
+  const templateType = form.watch("templateType");
+
+  const handleTemplateTypeChange = (newType: "rating" | "feedback") => {
+    form.reset({
+      ...form.getValues(),
+      templateType: newType,
+      questions: [
+        {
+          text: "",
+          type: newType === "rating" ? "RATING" : "TEXT",
+          options: [],
+        },
+      ],
+    });
+  };
+
+  async function onSubmit(data: CreateTemplateData) {
+    try {
+      setIsSubmitting(true);
+      const result = await createTemplateAction(data);
+
+      if (result.redirectUrl) {
+        router.push(result.redirectUrl);
+      }
+    } catch (error) {
+      console.error("Error creating campaign:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 p-6">
-        <SurveyTypeSelector
-          value={templateType}
-          onChange={handleTemplateTypeChange}
-        />
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Survey Name
-          </label>
-          <input
-            type="text"
-            placeholder="Enter survey name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 p-6">
+          <SurveyTypeSelector
+            value={templateType}
+            onChange={handleTemplateTypeChange}
           />
-        </div>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Survey Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter survey name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <QuestionList />
 
-        <QuestionsList
-          questions={questions}
-          templateType={templateType}
-          register={form.register}
-          setValue={form.setValue}
-          removeQuestion={removeQuestion}
-          addQuestion={addQuestion}
-        />
-        <button
-          type="submit"
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Create Survey
-        </button>
-      </form>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Survey"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 };

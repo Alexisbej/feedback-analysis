@@ -1,5 +1,40 @@
 import { z } from "zod";
 
+export const templateIdSchema = z.object({
+  templateId: z.string().uuid(),
+});
+export type TemplateId = z.infer<typeof templateIdSchema>;
+
+export const campaignTemplateSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  tenantId: z.string().uuid(),
+  feedbackLinks: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        url: z.string().url(),
+        qrCodeImage: z.string().nullable(),
+        expiration: z.date().nullable().optional(),
+        usageLimit: z.number().nullable().optional(),
+        isActive: z.boolean(),
+      }),
+    )
+    .optional(),
+});
+export type CampaignTemplate = z.infer<typeof campaignTemplateSchema>;
+
+export const qrSettingsSchema = z.object({
+  linkId: z.string().uuid(),
+  expiration: z.date().nullable().optional(),
+  usageLimit: z.number().nullable().optional(),
+  isActive: z.boolean().optional(),
+});
+export type QRSettings = z.infer<typeof qrSettingsSchema>;
+
+export const questionTypeSchema = z.enum(["TEXT", "MULTIPLE_CHOICE", "RATING"]);
+export type QuestionType = z.infer<typeof questionTypeSchema>;
+
 const questionSchema = z
   .object({
     text: z.string().min(1, "Question text is required"),
@@ -19,9 +54,11 @@ const questionSchema = z
     }
     return true;
   });
+export type Question = z.infer<typeof questionSchema>;
 
 export const createTemplateSchema = z
   .object({
+    tenantId: z.string(),
     templateType: z.enum(["rating", "feedback"]),
     name: z.string().min(1, "Survey name is required"),
     questions: z
@@ -44,3 +81,4 @@ export const createTemplateSchema = z
     }
     return true;
   });
+export type CreateTemplateData = z.infer<typeof createTemplateSchema>;

@@ -1,6 +1,7 @@
 import { generateQRAction } from "@/features/campaign/actions/generate-qr.action";
-import { getCampaignTemplate } from "@/features/campaign/campaignService";
+
 import { QRDisplay } from "@/features/campaign/components/QRDisplay";
+import { getCampaignTemplate } from "@/features/campaign/services/template-service";
 import {
   ArrowLeft,
   Calendar,

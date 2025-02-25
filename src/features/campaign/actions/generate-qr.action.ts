@@ -1,30 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import QRCode from "qrcode";
-import { prisma } from "../../../../prisma/prisma";
+
+import { generateQRCode } from "../services/qr-service";
+import { templateIdSchema } from "../types";
 
 export async function generateQRAction(formData: FormData) {
-  const templateId = formData.get("templateId")?.toString();
-  if (!templateId) throw new Error("Missing templateId");
+  const templateId = formData.get("templateId")?.toString() || "";
 
-  const template = await prisma.template.findUnique({
-    where: { id: templateId },
-    include: { tenant: true },
-  });
+  const validatedData = templateIdSchema.parse({ templateId });
 
-  if (!template) throw new Error("Template not found");
+  await generateQRCode(validatedData.templateId);
 
-  const url = `${process.env.BASE_URL}/feedback/${template.tenant.slug}/${templateId}`;
-  const qrCode = await QRCode.toDataURL(url);
-
-  await prisma.feedbackLink.create({
-    data: {
-      templateId,
-      url,
-      qrCodeImage: qrCode,
-    },
-  });
-
-  revalidatePath("/feedback");
+  revalidatePath("/dashboard/campaigns/[templateId]");
 }

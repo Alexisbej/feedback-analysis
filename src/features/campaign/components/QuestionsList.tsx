@@ -1,101 +1,174 @@
-import { MinusCircle, PlusCircle, Star } from "lucide-react";
-import { FC } from "react";
-import { UseFormRegister, UseFormSetValue } from "react-hook-form";
-import { FormValues } from "../hooks/useCreateCampaignForm";
+"use client";
 
-type QuestionsListProps = {
-  questions: FormValues["questions"];
-  templateType: "rating" | "feedback";
-  register: UseFormRegister<FormValues>;
-  setValue: UseFormSetValue<FormValues>;
-  removeQuestion: (index: number) => void;
-  addQuestion: () => void;
-};
+import { Button } from "@/components/ui/button";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Trash2 } from "lucide-react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 
-export const QuestionsList: FC<QuestionsListProps> = ({
-  questions,
-  templateType,
-  removeQuestion,
-  addQuestion,
-}) => {
+export default function QuestionList() {
+  const form = useFormContext();
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "questions",
+  });
+
+  const handleAddQuestion = () => {
+    append({
+      text: "",
+      type: "TEXT",
+      options: [],
+    });
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-900">Survey Questions</h2>
-        <span className="text-sm text-gray-500">
-          {questions.length}/5 questions
-        </span>
-      </div>
-
-      {questions.map((question, index) => (
-        <div key={index} className="bg-gray-50 rounded-lg p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
-              Question {index + 1}
-              {templateType === "rating" && (
-                <Star className="w-4 h-4 text-yellow-400" />
-              )}
-            </h3>
-            {questions.length > 1 && (
-              <button
+      <div className="space-y-4">
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
+            className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-medium">Question {index + 1}</h3>
+              <Button
                 type="button"
-                onClick={() => removeQuestion(index)}
-                className="text-gray-400 hover:text-red-500 transition-colors"
+                variant="ghost"
+                size="sm"
+                onClick={() => remove(index)}
+                disabled={fields.length === 1}
               >
-                <MinusCircle className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
 
-          <input
-            type="text"
-            placeholder="Enter your question"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
-
-          {templateType === "feedback" && (
             <div className="space-y-4">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                value={question.type}
-                onChange={(e) => {
-                  const newQuestions = [...questions];
-                  newQuestions[index].type = e.target.value as
-                    | "TEXT"
-                    | "MULTIPLE_CHOICE";
-                }}
-              >
-                <option value="TEXT">Text Answer</option>
-                <option value="MULTIPLE_CHOICE">Multiple Choice</option>
-              </select>
+              <FormField
+                control={form.control}
+                name={`questions.${index}.text`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Question Text</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your question" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {question.type === "MULTIPLE_CHOICE" && (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Options (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Option 1, Option 2, Option 3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+              <FormField
+                control={form.control}
+                name={`questions.${index}.type`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Question Type</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select question type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="TEXT">Text</SelectItem>
+                        <SelectItem value="MULTIPLE_CHOICE">
+                          Multiple Choice
+                        </SelectItem>
+                        <SelectItem value="RATING">Rating</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {form.watch(`questions.${index}.type`) === "MULTIPLE_CHOICE" && (
+                <OptionsList questionIndex={index} />
               )}
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
 
-      {questions.length < 5 && (
-        <button
-          type="button"
-          onClick={addQuestion}
-          className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center gap-2"
-        >
-          <PlusCircle className="w-5 h-5" />
-          Add Question
-        </button>
-      )}
+      <Button
+        type="button"
+        variant="outline"
+        onClick={handleAddQuestion}
+        disabled={fields.length >= 5}
+        className="w-full"
+      >
+        Add Question
+      </Button>
     </div>
   );
-};
+}
+
+function OptionsList({ questionIndex }: { questionIndex: number }) {
+  const form = useFormContext();
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: `questions.${questionIndex}.options`,
+  });
+
+  const handleAddOption = () => {
+    append("");
+  };
+
+  return (
+    <div className="space-y-3">
+      <FormLabel>Options</FormLabel>
+      {fields.map((field, optionIndex) => (
+        <div key={field.id} className="flex gap-2">
+          <FormField
+            control={form.control}
+            name={`questions.${questionIndex}.options.${optionIndex}`}
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormControl>
+                  <Input placeholder={`Option ${optionIndex + 1}`} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => remove(optionIndex)}
+            disabled={fields.length <= 2}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleAddOption}
+        className="w-full"
+      >
+        Add Option
+      </Button>
+    </div>
+  );
+}
