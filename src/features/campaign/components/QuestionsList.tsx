@@ -15,8 +15,6 @@ type QuestionsListProps = {
 export const QuestionsList: FC<QuestionsListProps> = ({
   questions,
   templateType,
-  register,
-  setValue,
   removeQuestion,
   addQuestion,
 }) => {

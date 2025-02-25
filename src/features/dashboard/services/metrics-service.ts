@@ -1,6 +1,9 @@
-import { prisma } from "../../../prisma/prisma";
+import { prisma } from "../../../../prisma/prisma";
+import { DashboardMetrics } from "../types";
 
-export async function getDashboardMetrics(businessId: string) {
+export async function getDashboardMetrics(
+  businessId: string,
+): Promise<DashboardMetrics> {
   const campaignsCount = await prisma.template.count({
     where: { tenantId: businessId },
   });
@@ -69,18 +72,3 @@ export async function getDashboardMetrics(businessId: string) {
     unregisteredParticipantsCount,
   };
 }
-
-export async function fetchFeedbacks(businessId: string, filters = {}) {
-  const query = new URLSearchParams({ businessId, ...filters });
-  const res = await fetch(`/api/feedback?${query.toString()}`);
-  if (!res.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return res.json();
-}
-
-export const feedbackQueryOptions = (businessId: string, filters = {}) => ({
-  queryKey: ["feedbacks", businessId, filters],
-  queryFn: ({ pageParam = 0 }) =>
-    fetchFeedbacks(businessId, { ...filters, skip: pageParam, take: 5 }),
-});

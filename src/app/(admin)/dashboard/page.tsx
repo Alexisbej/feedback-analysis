@@ -1,9 +1,8 @@
 import { auth } from "@/auth";
-import { getBusinessesForAdmin } from "@/features/dashboard/actions/get-businesses.action";
-import AdminDashboard from "@/features/dashboard/components/AdminDashboard";
-
+import { getBusinessesAction } from "@/features/dashboard/actions/get-businesses.action";
+import { AdminDashboard } from "@/features/dashboard/components/AdminDashboard";
 import { DashboardEmptyState } from "@/features/dashboard/components/DashboardEmptyState";
-import { getDashboardMetrics } from "@/features/dashboard/dashboardService";
+import { getDashboardMetrics } from "@/features/dashboard/services/metrics-service";
 import { redirect } from "next/navigation";
 
 interface DashboardProps {
@@ -20,8 +19,18 @@ export default async function AdminDashboardPage({
 
   let { businessId } = await searchParams;
   if (!businessId) {
-    const businesses = await getBusinessesForAdmin(session.user.id!);
-    businessId = businesses?.[0].id;
+    const businesses = await getBusinessesAction(session.user.id!);
+    businessId = businesses?.[0]?.id;
+
+    if (!businessId) {
+      // Handle case where admin has no businesses
+      return (
+        <div className="p-8">
+          <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+          <p>You don&apos;t have any businesses configured.</p>
+        </div>
+      );
+    }
   }
 
   const metrics = await getDashboardMetrics(businessId);

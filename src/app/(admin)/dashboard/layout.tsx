@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { AppSidebar } from "@/components/AppSidebar";
 import SignoutButton from "@/components/SignoutButton";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getBusinessesForAdmin } from "@/features/dashboard/actions/get-businesses.action";
+import { getBusinessesAction } from "@/features/dashboard/actions/get-businesses.action";
 import { redirect } from "next/navigation";
 
 export default async function Layout({
@@ -13,7 +13,7 @@ export default async function Layout({
   const session = await auth();
   if (!session?.user) redirect("/register");
 
-  const businesses = await getBusinessesForAdmin(session.user.id!);
+  const businesses = await getBusinessesAction(session.user.id!);
 
   return (
     <SidebarProvider>

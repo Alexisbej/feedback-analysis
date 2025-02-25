@@ -1,36 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import React, { useState } from "react";
-import { fetchFeedbacks } from "../dashboardService";
 
-interface Answer {
-  id: string;
-  value: string | number | boolean | object | null;
-  createdAt: string;
-}
+import { Input } from "@/components/ui/input";
+import { z } from "zod";
+import { useFeedbacks } from "../hooks/useFeedbacks";
 
-interface Feedback {
-  id: string;
-  content: string;
-  rating: number | null;
-  sentiment: string | null;
-  createdAt: string;
-  answers: Answer[];
-  user?: {
-    name: string;
-    email: string;
-  };
-}
+import { Answer, feedbackFiltersSchema, FeedbackResponse } from "../types";
+import { FeedbackListSkeleton } from "./Skeletons";
 
 interface FeedbackListProps {
   businessId: string;
 }
 
-export default function FeedbackList({ businessId }: FeedbackListProps) {
+export function FeedbackList({ businessId }: FeedbackListProps) {
   const [filters, setFilters] = useState({
     location: "",
     time: "",
@@ -38,21 +23,8 @@ export default function FeedbackList({ businessId }: FeedbackListProps) {
   });
   const [appliedFilters, setAppliedFilters] = useState(filters);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["feedbacks", businessId, appliedFilters],
-      queryFn: ({ pageParam = 0 }) =>
-        fetchFeedbacks(businessId, {
-          ...appliedFilters,
-          skip: pageParam,
-          take: 5,
-        }),
-      getNextPageParam: (lastPage, pages) => {
-        if (lastPage.feedbacks.length < 5) return undefined;
-        return pages.length * 5;
-      },
-      suspense: true,
-    });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useFeedbacks(businessId, appliedFilters);
 
   const computeAverageRating = (answers: Answer[]) => {
     const numericValues = answers
@@ -72,83 +44,104 @@ export default function FeedbackList({ businessId }: FeedbackListProps) {
   };
 
   const handleFilterSubmit = () => {
-    setAppliedFilters(filters);
+    try {
+      const validatedFilters = feedbackFiltersSchema.parse(filters);
+      setAppliedFilters({
+        location: validatedFilters.location || "",
+        time: validatedFilters.time || "",
+        demographics: validatedFilters.demographics || "",
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error("Filter validation failed:", error.errors);
+      }
+    }
   };
 
-  // Flatten pages of feedback into a single array
-  const feedbacks: Feedback[] =
-    data?.pages.flatMap((page) => page.feedbacks) || [];
+  const feedbacks =
+    data?.pages.flatMap((page: FeedbackResponse) => page.feedbacks) || [];
 
   return (
-    <div className="mx-auto px-4 py-6">
-      {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
+    <div className="mt-8">
+      <div className="flex items-center gap-4 mb-4">
         <Input
           name="location"
-          placeholder="Location"
+          placeholder="Filter by location"
           value={filters.location}
           onChange={handleFilterChange}
+          className="flex-1"
         />
         <Input
           name="time"
-          placeholder="Time"
+          type="date"
+          placeholder="Filter by date"
           value={filters.time}
           onChange={handleFilterChange}
+          className="flex-1"
         />
         <Input
           name="demographics"
-          placeholder="Demographics"
+          placeholder="Filter by demographics"
           value={filters.demographics}
           onChange={handleFilterChange}
+          className="flex-1"
         />
         <Button onClick={handleFilterSubmit}>Filter</Button>
       </div>
 
-      {/* Feedback List with new UI */}
       <div className="bg-white rounded-xl shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold">Recent Feedback</h2>
         </div>
-        <div className="divide-y divide-gray-200">
-          {feedbacks.map((fb: Feedback) => (
-            <div key={fb.id} className="p-6">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-blue-600">
-                      {fb.user?.name
-                        ? fb.user.name.charAt(0)
-                        : fb.content.charAt(0)}
+        {isLoading ? (
+          <div className="p-6 text-center">
+            <FeedbackListSkeleton />
+          </div>
+        ) : feedbacks.length === 0 ? (
+          <div className="p-6 text-center">
+            <p>No feedback available with the current filters.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {feedbacks.map((fb) => (
+              <div key={fb.id} className="p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-blue-600">
+                        {fb.user?.name
+                          ? fb.user.name.charAt(0)
+                          : fb.content.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {fb.user?.name || "Anonymous"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {fb.user?.email || "No email provided"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                    <span className="font-medium">
+                      {fb.rating !== null
+                        ? fb.rating
+                        : computeAverageRating(fb.answers)}
                     </span>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {fb.user?.name || "Anonymous"}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {fb.user?.email || "No email provided"}
-                    </p>
-                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span className="font-medium">
-                    {fb.rating !== null
-                      ? fb.rating
-                      : computeAverageRating(fb.answers)}
-                  </span>
-                </div>
+                <p className="text-gray-600">{fb.content}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {new Date(fb.createdAt).toLocaleDateString()}
+                </p>
               </div>
-              <p className="text-gray-600">{fb.content}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                {new Date(fb.createdAt).toISOString()}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Load More Button */}
       {hasNextPage && (
         <div className="flex justify-center mt-4">
           <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>

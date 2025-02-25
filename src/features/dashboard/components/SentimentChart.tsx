@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { BarChart3 } from "lucide-react";
 import {
@@ -12,60 +12,45 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { feedbackQueryOptions } from "../dashboardService";
-
-interface Feedback {
-  id: string;
-  sentiment: string | null;
-}
+import { computeSentimentData } from "../services/feedback-service";
+import { FeedbackResponse } from "../types";
+import { SentimentChartSkeleton } from "./Skeletons";
 
 interface SentimentChartProps {
   businessId: string;
 }
 
-function computeSentimentData(feedbacks: Feedback[]) {
-  // For demo purposes - replace this with actual date-based grouping
-  const demoData = Array.from({ length: 31 }, (_, i) => {
-    const date = new Date(2024, 2, i + 1); // March 2024
+async function fetchFeedbackData(
+  businessId: string,
+): Promise<FeedbackResponse> {
+  const res = await fetch(`/api/feedback?businessId=${businessId}&take=20`);
 
-    // Every 5th day will have more negative feedback
-    const isNegativeDay = i % 5 === 0;
+  if (!res.ok) {
+    throw new Error("Failed to fetch feedbacks");
+  }
 
-    let positive, negative, neutral;
-
-    if (isNegativeDay) {
-      positive = Math.floor(Math.random() * 10) + 2; // 2-12 positive
-      negative = Math.floor(Math.random() * 20) + 15; // 15-35 negative
-      neutral = Math.floor(Math.random() * 8) + 2; // 2-10 neutral
-    } else {
-      positive = Math.floor(Math.random() * 20) + 10; // 10-30 positive
-      negative = Math.floor(Math.random() * 10) + 2; // 2-12 negative
-      neutral = Math.floor(Math.random() * 8) + 2; // 2-10 neutral
-    }
-
-    const ratio =
-      negative === 0 && neutral === 0
-        ? positive > 0
-          ? positive
-          : 1
-        : (positive + neutral * 0.5) / (negative + neutral * 0.5);
-
-    return {
-      date: date.toISOString().split("T")[0], // YYYY-MM-DD format
-      ratio,
-      positive,
-      negative,
-      neutral,
-    };
-  });
-
-  return demoData;
+  return res.json();
 }
 
 export function SentimentChart({ businessId }: SentimentChartProps) {
-  const { data } = useSuspenseQuery(feedbackQueryOptions(businessId, {}));
+  const { data, isLoading } = useQuery({
+    queryKey: ["feedbacks", "chart", businessId],
+    queryFn: () => fetchFeedbackData(businessId),
+  });
 
-  const sentimentData = computeSentimentData(data.feedbacks);
+  const sentimentData = computeSentimentData(data?.feedbacks || []);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-blue-600" />
+          Sentiment Analysis
+        </h2>
+        <SentimentChartSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
@@ -79,15 +64,15 @@ export function SentimentChart({ businessId }: SentimentChartProps) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="date"
-              tickFormatter={(date) => format(new Date(date), "dd/MM/yyyy")}
+              tickFormatter={(date) => format(new Date(date), "dd/MM")}
             />
             <YAxis
               domain={[0, "auto"]}
               tickFormatter={(value) => value.toFixed(1)}
             />
             <Tooltip
-              labelFormatter={(date) => format(new Date(date), "dd/MM/yyyy")}
-              formatter={(value: any) => [
+              labelFormatter={(date) => format(new Date(date), "MMM dd, yyyy")}
+              formatter={(value: number) => [
                 `${value.toFixed(2)}`,
                 "Positive/Negative Ratio",
               ]}

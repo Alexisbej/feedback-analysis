@@ -1,50 +1,32 @@
+import { fetchFeedbacksFromDb } from "@/features/dashboard/services/feedback-service";
 import { NextResponse } from "next/server";
-import { prisma } from "../../../../prisma/prisma";
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const businessId = url.searchParams.get("businessId");
-  const location = url.searchParams.get("location");
-  const time = url.searchParams.get("time");
-  const demographics = url.searchParams.get("demographics");
-
-  if (!businessId) {
-    return NextResponse.json(
-      { error: "businessId is required" },
-      { status: 400 },
-    );
-  }
-
-  const where: {
-    tenantId: string;
-    location?: { contains: string; mode: "insensitive" };
-    createdAt?: { gte: Date };
-    demographics?: { contains: string; mode: "insensitive" };
-  } = {
-    tenantId: businessId,
-  };
-
-  if (location) {
-    where.location = { contains: location, mode: "insensitive" };
-  }
-  if (time) {
-    where.createdAt = { gte: new Date(time) };
-  }
-  if (demographics) {
-    where.demographics = { contains: demographics, mode: "insensitive" };
-  }
-
   try {
-    const skip = Number(url.searchParams.get("skip") || 0);
-    const take = Number(url.searchParams.get("take") || 5);
+    const url = new URL(request.url);
+    const businessId = url.searchParams.get("businessId");
 
-    const feedbacks = await prisma.feedback.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: { answers: true },
-      skip,
-      take,
-    });
+    if (!businessId) {
+      return NextResponse.json(
+        { error: "businessId is required" },
+        { status: 400 },
+      );
+    }
+
+    const filters = {
+      location: url.searchParams.get("location") || undefined,
+      time: url.searchParams.get("time") || undefined,
+      demographics: url.searchParams.get("demographics") || undefined,
+      skip: url.searchParams.get("skip")
+        ? parseInt(url.searchParams.get("skip")!, 10)
+        : 0,
+      take: url.searchParams.get("take")
+        ? parseInt(url.searchParams.get("take")!, 10)
+        : 5,
+    };
+
+    const feedbacks = await fetchFeedbacksFromDb(businessId, filters);
+
     return NextResponse.json({ feedbacks });
   } catch (error) {
     console.error("Error fetching feedbacks:", error);
