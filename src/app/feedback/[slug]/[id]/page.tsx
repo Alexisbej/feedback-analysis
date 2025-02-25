@@ -10,19 +10,10 @@ export default async function FeedbackPage({
   const questions = await getFeedbackQuestions(slug, id);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="container mx-auto p-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Leave your feedback
-          </h1>
-        </div>
-      </header>
-      <main className="w-2/3 mx-auto p-4">
-        <div className="bg-white rounded-lg shadow p-6">
-          <FeedbackForm questions={questions} />
-        </div>
-      </main>
-    </div>
+    <main className="w-2/3 mx-auto p-4">
+      <div className="bg-white rounded-lg shadow p-6">
+        <FeedbackForm questions={questions} />
+      </div>
+    </main>
   );
 }

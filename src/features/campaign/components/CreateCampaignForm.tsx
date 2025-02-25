@@ -1,10 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
 import { useCreateCampaignForm } from "../hooks/useCreateCampaignForm";
 import { QuestionsList } from "./QuestionsList";
-import { SurveyNameInput } from "./SurveyNameInput";
 import { SurveyTypeSelector } from "./SurveyTypeSelector";
 
 export const CreateCampaignForm = () => {
@@ -19,13 +16,23 @@ export const CreateCampaignForm = () => {
   } = useCreateCampaignForm();
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <div className="bg-white rounded-xl shadow-sm">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 p-6">
         <SurveyTypeSelector
           value={templateType}
           onChange={handleTemplateTypeChange}
         />
-        <SurveyNameInput register={form.register} />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Survey Name
+          </label>
+          <input
+            type="text"
+            placeholder="Enter survey name"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
         <QuestionsList
           questions={questions}
           templateType={templateType}
@@ -34,10 +41,13 @@ export const CreateCampaignForm = () => {
           removeQuestion={removeQuestion}
           addQuestion={addQuestion}
         />
-        <Button type="submit" className="w-full">
+        <button
+          type="submit"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           Create Survey
-        </Button>
+        </button>
       </form>
-    </Form>
+    </div>
   );
 };

@@ -35,12 +35,15 @@ export async function GET(request: Request) {
   }
 
   try {
+    const skip = Number(url.searchParams.get("skip") || 0);
+    const take = Number(url.searchParams.get("take") || 5);
+
     const feedbacks = await prisma.feedback.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      include: {
-        answers: true,
-      },
+      include: { answers: true },
+      skip,
+      take,
     });
     return NextResponse.json({ feedbacks });
   } catch (error) {

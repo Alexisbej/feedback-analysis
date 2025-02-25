@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { AppSidebar } from "@/components/AppSidebar";
 import SignoutButton from "@/components/SignoutButton";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getBusinessesForAdmin } from "@/features/dashboard/actions/get-businesses.action";
 import { redirect } from "next/navigation";
 
@@ -20,7 +20,10 @@ export default async function Layout({
       <AppSidebar businesses={businesses} user={session.user}>
         <SignoutButton />
       </AppSidebar>
-      <main className="md:ml-[var(--sidebar-width)]">{children}</main>
+      <main className="md:ml-[var(--sidebar-width)]">
+        <SidebarTrigger />
+        {children}
+      </main>
     </SidebarProvider>
   );
 }

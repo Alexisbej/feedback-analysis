@@ -55,7 +55,7 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
     (url) => fetch(url).then((res) => res.json()),
   );
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
+    <Sidebar collapsible="icon" variant="sidebar" className="max-w-52">
       <SidebarContent>
         {/* Group: My Businesses */}
         <SidebarGroup>
@@ -111,7 +111,9 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
                 {templates?.map((template: Template) => (
                   <SidebarMenuItem key={template.id}>
                     <SidebarMenuButton asChild>
-                      <Link href={`/dashboard/campaigns/${template.id}`}>
+                      <Link
+                        href={`/dashboard/campaigns/${template.id}?businessId=${activeBusinessId}`}
+                      >
                         <span>{template.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -186,7 +188,6 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
                 <DropdownMenuItem>
                   <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
-                {/* Render the logout button passed from the parent */}
                 {children}
               </DropdownMenuContent>
             </DropdownMenu>

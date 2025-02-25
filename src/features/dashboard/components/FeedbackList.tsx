@@ -2,9 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Star } from "lucide-react";
 import React, { useState } from "react";
-import { feedbackQueryOptions } from "../dashboardService";
+import { fetchFeedbacks } from "../dashboardService";
 
 interface Answer {
   id: string;
@@ -19,6 +20,10 @@ interface Feedback {
   sentiment: string | null;
   createdAt: string;
   answers: Answer[];
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
 interface FeedbackListProps {
@@ -33,17 +38,21 @@ export default function FeedbackList({ businessId }: FeedbackListProps) {
   });
   const [appliedFilters, setAppliedFilters] = useState(filters);
 
-  const { data } = useSuspenseQuery(
-    feedbackQueryOptions(businessId, appliedFilters),
-  );
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
-
-  const handleFilterSubmit = () => {
-    setAppliedFilters(filters);
-  };
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery({
+      queryKey: ["feedbacks", businessId, appliedFilters],
+      queryFn: ({ pageParam = 0 }) =>
+        fetchFeedbacks(businessId, {
+          ...appliedFilters,
+          skip: pageParam,
+          take: 5,
+        }),
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.feedbacks.length < 5) return undefined;
+        return pages.length * 5;
+      },
+      suspense: true,
+    });
 
   const computeAverageRating = (answers: Answer[]) => {
     const numericValues = answers
@@ -58,8 +67,21 @@ export default function FeedbackList({ businessId }: FeedbackListProps) {
     return avg.toFixed(2);
   };
 
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
+  };
+
+  const handleFilterSubmit = () => {
+    setAppliedFilters(filters);
+  };
+
+  // Flatten pages of feedback into a single array
+  const feedbacks: Feedback[] =
+    data?.pages.flatMap((page) => page.feedbacks) || [];
+
   return (
     <div className="mx-auto px-4 py-6">
+      {/* Filters */}
       <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
         <Input
           name="location"
@@ -81,56 +103,59 @@ export default function FeedbackList({ businessId }: FeedbackListProps) {
         />
         <Button onClick={handleFilterSubmit}>Filter</Button>
       </div>
-      <ul className="space-y-6">
-        {data?.feedbacks.map((fb: Feedback) => (
-          <li key={fb.id} className="bg-white p-6 rounded-lg shadow-lg">
-            {fb.content && (
-              <p className="text-lg font-semibold mb-2">{fb.content}</p>
-            )}
-            <div className="mb-2">
-              <span className="font-medium">Rating: </span>
-              {fb.rating !== null ? (
-                <span className="text-blue-600 font-bold">{fb.rating}</span>
-              ) : (
-                <span className="text-green-600 font-bold">
-                  {computeAverageRating(fb.answers)}
-                </span>
-              )}
-            </div>
-            <p className="mb-2">
-              <span className="font-medium">Sentiment:</span>{" "}
-              {fb.sentiment || "N/A"}
-            </p>
-            <p className="mb-4 text-sm text-gray-500">
-              <span className="font-medium">Submitted:</span>{" "}
-              {new Date(fb.createdAt).toLocaleString()}
-            </p>
-            {fb.answers && fb.answers.length > 0 && (
-              <div className="mt-4 border-t pt-4">
-                <p className="font-bold mb-2">Answers:</p>
-                <ul className="space-y-2">
-                  {fb.answers.map((ans: Answer) => (
-                    <li
-                      key={ans.id}
-                      className="pl-4 border-l-2 border-gray-300"
-                    >
-                      <p className="text-gray-800">
-                        <span className="font-medium">Value:</span>{" "}
-                        {typeof ans.value === "object"
-                          ? JSON.stringify(ans.value)
-                          : ans.value}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Submitted: {new Date(ans.createdAt).toLocaleString()}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+
+      {/* Feedback List with new UI */}
+      <div className="bg-white rounded-xl shadow-sm">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold">Recent Feedback</h2>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {feedbacks.map((fb: Feedback) => (
+            <div key={fb.id} className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-blue-600">
+                      {fb.user?.name
+                        ? fb.user.name.charAt(0)
+                        : fb.content.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {fb.user?.name || "Anonymous"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {fb.user?.email || "No email provided"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                  <span className="font-medium">
+                    {fb.rating !== null
+                      ? fb.rating
+                      : computeAverageRating(fb.answers)}
+                  </span>
+                </div>
               </div>
-            )}
-          </li>
-        ))}
-      </ul>
+              <p className="text-gray-600">{fb.content}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {new Date(fb.createdAt).toISOString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Load More Button */}
+      {hasNextPage && (
+        <div className="flex justify-center mt-4">
+          <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

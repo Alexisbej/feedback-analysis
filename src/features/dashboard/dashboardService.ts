@@ -81,5 +81,6 @@ export async function fetchFeedbacks(businessId: string, filters = {}) {
 
 export const feedbackQueryOptions = (businessId: string, filters = {}) => ({
   queryKey: ["feedbacks", businessId, filters],
-  queryFn: () => fetchFeedbacks(businessId, filters),
+  queryFn: ({ pageParam = 0 }) =>
+    fetchFeedbacks(businessId, { ...filters, skip: pageParam, take: 5 }),
 });

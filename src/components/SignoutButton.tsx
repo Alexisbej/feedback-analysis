@@ -9,7 +9,9 @@ export default async function SignoutButton() {
         await signOut({ redirectTo: "/" });
       }}
     >
-      <DropdownMenuItem>Logout</DropdownMenuItem>
+      <DropdownMenuItem>
+        <button className="cursor-pointer">Logout</button>
+      </DropdownMenuItem>
     </form>
   );
 }
