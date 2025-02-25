@@ -1,19 +1,29 @@
 "use client";
 
-import React from "react";
 import { RainbowButton } from "@/components/magicui/rainbow-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import React from "react";
+import { FormProvider } from "react-hook-form";
+import { useBusinessRegister } from "../hooks/useBusinessRegister";
 
 type BusinessRegisterFormProps = {
-  action: (formData: FormData) => Promise<void>;
   showReturnLink?: boolean;
 };
 
 export const BusinessRegisterForm: React.FC<BusinessRegisterFormProps> = ({
-  action,
   showReturnLink = false,
 }) => {
+  const { form, onSubmit } = useBusinessRegister();
+
   return (
     <div className="w-full px-6 py-8 max-w-2xl">
       {showReturnLink && (
@@ -40,57 +50,77 @@ export const BusinessRegisterForm: React.FC<BusinessRegisterFormProps> = ({
           <CardTitle className="text-2xl">Business Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={action} className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Business Name
-                </label>
-                <Input
-                  id="name"
-                  name="name"
-                  required
-                  placeholder="Acme Inc."
-                  className="w-full transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
+          <FormProvider {...form}>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormLabel>Business Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Acme Inc."
+                            className="w-full transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="slug"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Business URL
-                </label>
-                <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
-                  <span className="text-sm text-muted-foreground">
-                    feedbackpro.com/
-                  </span>
-                  <Input
-                    id="slug"
+                  <FormField
+                    control={form.control}
                     name="slug"
-                    required
-                    placeholder="acme"
-                    pattern="^[a-z0-9-]+$"
-                    title="Only lowercase letters, numbers, and hyphens are allowed"
-                    className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormLabel>Business URL</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
+                            <span className="text-sm text-muted-foreground">
+                              feedbackpro.com/
+                            </span>
+                            <Input
+                              {...field}
+                              placeholder="acme"
+                              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                          </div>
+                        </FormControl>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          This will be your unique URL for collecting feedback
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  This will be your unique URL for collecting feedback
-                </p>
-              </div>
-            </div>
 
-            <div className="space-y-4">
-              <RainbowButton className="w-full" type="submit">
-                Create Business
-              </RainbowButton>
-            </div>
-          </form>
+                <div className="space-y-4">
+                  <RainbowButton
+                    className="w-full"
+                    type="submit"
+                    disabled={form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting
+                      ? "Creating..."
+                      : "Create Business"}
+                  </RainbowButton>
+                  {form.formState.errors.root && (
+                    <p className="text-sm text-red-500 text-center">
+                      {form.formState.errors.root.message}
+                    </p>
+                  )}
+                </div>
+              </form>
+            </Form>
+          </FormProvider>
         </CardContent>
       </Card>
     </div>

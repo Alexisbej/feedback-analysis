@@ -1,25 +1,19 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { prisma } from "../../../../prisma/prisma";
-import { revalidatePath } from "next/cache";
+import { BusinessRegisterFormValues } from "../types";
 
-
-export async function createBusiness(formData: FormData) {
-  "use server";
-
-  const session = await auth();
-  if (!session?.user) return redirect("/register");
-
-  const name = formData.get("name") as string;
-  const slug = formData.get("slug") as string;
-
+export async function createBusinessInDatabase(
+  data: BusinessRegisterFormValues,
+  userId: string,
+) {
   try {
-    await prisma.tenant.create({
+    const { name, slug } = data;
+
+    const tenant = await prisma.tenant.create({
       data: {
         name,
         slug,
         owner: {
-          connect: { id: session.user.id },
+          connect: { id: userId },
         },
         settings: {
           create: {
@@ -37,12 +31,11 @@ export async function createBusiness(formData: FormData) {
     });
 
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: { onboardingCompleted: true },
     });
 
-    revalidatePath("/dashboard")
-    return redirect("/dashboard");
+    return tenant;
   } catch (error) {
     console.error("Error creating business:", error);
     throw new Error("Something went wrong while creating the business");
