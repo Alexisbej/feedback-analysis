@@ -90,17 +90,30 @@ Built with a modern technology stack including Next.js 15, React 19, and Postgre
 
 ## Architecture
 
-The application follows a hexagonal architecture (also known as ports and adapters) pattern:
+The application follows a feature-based layered architecture:
 
-- **Core Domain**: Business logic independent of external concerns
-- **Application Layer**: Use cases that orchestrate domain operations
-- **Infrastructure**: External adapters for persistence, messaging, etc.
+- **Feature Modules**: Code is organized by business capabilities/features
+
+  - Example: `src/features/business-register/`, `src/features/dashboard/`, etc.
+
+- **Layers within Features**: Each feature contains its own layers:
+  - **UI Layer**: Components and their presentation logic
+    - Example: `src/features/business-register/components/BusinessRegisterForm.tsx`
+  - **Application Layer**: Hooks and server actions
+    - Example: `src/features/business-register/hooks/useBusinessRegister.ts`
+    - Example: `src/features/business-register/actions/create-business.action.ts`
+  - **Data Layer**: Services for data operations
+    - Example: `src/features/business-register/services/business-register-service.ts`
+  - **Domain Layer**: Types, schemas, and business rules
+    - Example: `src/features/business-register/types.ts`
 
 This approach allows for:
 
-- Clear separation of concerns
-- Easier testing through dependency isolation
-- Flexibility to swap out infrastructure components
+- Improved developer experience through feature isolation
+- Better scalability as the application grows
+- Clearer ownership of feature code
+- Reduced cognitive load when working on specific features
+- Easier onboarding for new team members
 
 ## Getting Started
 
