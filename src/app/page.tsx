@@ -1,10 +1,8 @@
-// app/page.tsx
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { RainbowButton } from "@/components/magicui/rainbow-button";
 import { ScrollProgress } from "@/components/magicui/scroll-progress";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
-import { MarqueeDemo } from "@/components/MarqueeDemo";
 import PricingSection from "@/components/PricingSection";
 import { cn } from "@/lib/utils";
 import {
@@ -123,9 +121,7 @@ export default function Home() {
         <ScrollProgress className="top-[65px]" />
       </header>
 
-      {/* Main Content */}
       <main className="flex-grow">
-        {/* Hero Section */}
         <section className="pt-32 pb-28">
           <div className="text-center w-2/3 mx-auto">
             <ShimmerButton className="shadow-2xl mx-auto mb-4">
@@ -149,7 +145,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Features Section */}
         <section id="features" className="pt-8 mb-28">
           <div className="container mx-auto">
             <h2 className="uppercase text-center scroll-m-20 pb-2 text-xl font-semibold tracking-tight transition-colors first:mt-0">
@@ -166,8 +161,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Call-To-Action Section */}
-        <section className="bg-gray-50 py-22">
+        {/* <section className="bg-gray-50 py-22">
           <div className="text-center mb-8">
             <h2 className="mb-4 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
               Trusted by Service Businesses Worldwide
@@ -177,12 +171,11 @@ export default function Home() {
             </p>
           </div>
           <MarqueeDemo />
-        </section>
+        </section> */}
       </main>
 
       <PricingSection />
 
-      {/* Footer */}
       <footer className="w-full py-12 bg-background border-t">
         <div className="container px-4 md:px-6 mx-auto">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">

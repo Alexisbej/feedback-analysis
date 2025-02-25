@@ -1,12 +1,9 @@
-import React from "react";
-import MetricsCard from "./MetricsCard";
-import FeedbackList from "./FeedbackList";
+import { FileSpreadsheet, Star, Users, UserSquare2 } from "lucide-react";
+import { FeedbackList } from "./FeedbackList";
+import { SentimentChart } from "./SentimentChart";
 
-interface DashboardMetrics {
-  campaignsCount: number;
-  overallFeedbackScore: number;
-  participantsCount: number;
-}
+import { DashboardMetrics } from "../types";
+import { MetricCard } from "./MetricsCard";
 
 interface AdminDashboardProps {
   metrics: DashboardMetrics;
@@ -14,30 +11,50 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
-  const { campaignsCount, overallFeedbackScore, participantsCount } = metrics;
+  const {
+    campaignsCount,
+    overallFeedbackScore,
+    participantsCount,
+    unregisteredParticipantsCount,
+  } = metrics;
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-
-      {/* Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <MetricsCard title="Campaigns" value={campaignsCount} />
-        <MetricsCard
-          title="Overall Feedback Score"
-          value={overallFeedbackScore.toFixed(2)}
-        />
-        <MetricsCard title="Participants" value={participantsCount} />
-      </div>
-
-      {campaignsCount > 1 ? (
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Feedback Responses</h2>
-          <FeedbackList businessId={businessId} />
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">
+            Monitor your feedback and survey performance
+          </p>
         </div>
-      ) : (
-        <div>No feedback yet on your survey.</div>
-      )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <MetricCard
+            icon={FileSpreadsheet}
+            title="Total Campaigns"
+            value={campaignsCount}
+          />
+          <MetricCard
+            icon={Star}
+            title="Overall Score"
+            value={overallFeedbackScore.toFixed(1)}
+            description="Average rating across all feedback"
+          />
+          <MetricCard
+            icon={Users}
+            title="Total Participants"
+            value={participantsCount}
+          />
+          <MetricCard
+            icon={UserSquare2}
+            title="Unregistered Users"
+            value={unregisteredParticipantsCount}
+          />
+        </div>
+
+        <SentimentChart businessId={businessId} />
+        <FeedbackList businessId={businessId} />
+      </div>
     </div>
   );
 }

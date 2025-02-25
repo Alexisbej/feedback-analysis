@@ -152,6 +152,7 @@ model Feedback {
   content         String
   rating          Int?             @db.SmallInt
   sentiment       FeedbackSentiment?
+  answers         Answer[]
   metadata        Json?            // For storing IP, device info, etc.
   tenant          Tenant           @relation(fields: [tenantId], references: [id])
   tenantId        String
@@ -192,6 +193,16 @@ model Template {
   updatedAt       DateTime      @updatedAt
 }
 
+model Answer {
+  id          String    @id @default(uuid())
+  feedback    Feedback  @relation(fields: [feedbackId], references: [id])
+  feedbackId  String
+  question    Question  @relation(fields: [questionId], references: [id])
+  questionId  String
+  value       Json
+  createdAt   DateTime  @default(now())
+}
+
 model Question {
   id              String        @id @default(uuid())  
   question        String
@@ -199,6 +210,7 @@ model Question {
   options         String[]
   template        Template      @relation(fields: [templateId], references: [id])
   templateId      String
+  answers         Answer[]
 } 
 
 model TenantSettings {

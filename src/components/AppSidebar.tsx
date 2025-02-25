@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Template } from "@prisma/client";
 import {
   BarChart2,
   ChevronUp,
@@ -27,7 +28,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Template } from "@prisma/client";
 
 export interface Business {
   id: string;
@@ -55,7 +55,7 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
     (url) => fetch(url).then((res) => res.json()),
   );
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
+    <Sidebar collapsible="icon" variant="sidebar" className="max-w-52">
       <SidebarContent>
         {/* Group: My Businesses */}
         <SidebarGroup>
@@ -89,13 +89,13 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
 
         {activeBusinessId && (
           <SidebarGroup>
-            <SidebarGroupLabel>Templates</SidebarGroupLabel>
+            <SidebarGroupLabel>Surveys</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {isLoading && (
                   <SidebarMenuItem>
                     <div className="text-sm text-muted-foreground px-4">
-                      Loading templates...
+                      Loading surveys...
                     </div>
                   </SidebarMenuItem>
                 )}
@@ -103,7 +103,7 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
                 {error && (
                   <SidebarMenuItem>
                     <div className="text-sm text-destructive px-4">
-                      Error loading templates
+                      Error loading surveys
                     </div>
                   </SidebarMenuItem>
                 )}
@@ -111,7 +111,9 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
                 {templates?.map((template: Template) => (
                   <SidebarMenuItem key={template.id}>
                     <SidebarMenuButton asChild>
-                      <Link href={`/dashboard/campaigns/${template.id}`}>
+                      <Link
+                        href={`/dashboard/campaigns/${template.id}?businessId=${activeBusinessId}`}
+                      >
                         <span>{template.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -186,7 +188,6 @@ export function AppSidebar({ businesses, user, children }: AppSidebarProps) {
                 <DropdownMenuItem>
                   <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
-                {/* Render the logout button passed from the parent */}
                 {children}
               </DropdownMenuContent>
             </DropdownMenu>

@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 export default async function OnboardingPage() {
   const session = await auth();
 
-  // Redirect if already completed onboarding
   if (session?.user?.onboardingCompleted) {
     redirect(session.user.role === "ADMIN" ? "/dashboard" : "/profile");
   }

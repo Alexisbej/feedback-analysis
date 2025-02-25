@@ -23,7 +23,6 @@ export default function ResetPage() {
   });
 
   async function onSubmit(values: z.infer<typeof resetSchema>) {
-    // Add password reset logic here
     return values;
   }
 

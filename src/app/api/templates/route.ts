@@ -19,7 +19,6 @@ export async function GET(request: Request) {
     );
   }
 
-  // Verify admin owns the business
   const business = await prisma.tenant.findFirst({
     where: { id: businessId, ownerId: session.user.id },
   });

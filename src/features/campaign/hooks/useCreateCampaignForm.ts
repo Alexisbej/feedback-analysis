@@ -1,13 +1,14 @@
 "use client";
 
-import { createTemplateSchema } from "@/features/campaign/schemas/create-template.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { createTemplateAction } from "../actions/create-template.action";
+import { createTemplateSchema } from "../types";
 
 export type FormValues = {
+  tenantId: string;
   templateType: "rating" | "feedback";
   name: string;
   questions: {
@@ -25,6 +26,7 @@ export const useCreateCampaignForm = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
+      tenantId: tenantId || "",
       templateType: "rating",
       name: "",
       questions: [
@@ -84,10 +86,11 @@ export const useCreateCampaignForm = () => {
             ? question.options || ["Option 1", "Option 2", "Option 3"]
             : [],
       })),
+      tenantId,
     };
 
-    await createTemplateAction(formattedData, tenantId);
-    router.push(`/dashboard?businessId=${tenantId}`);
+    const { redirectUrl } = await createTemplateAction(formattedData);
+    router.push(redirectUrl);
   };
 
   return {
