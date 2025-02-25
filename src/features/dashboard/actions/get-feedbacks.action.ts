@@ -1,7 +1,7 @@
 "use server";
 
 import { fetchFeedbacksFromDb } from "../services/feedback-service";
-import { Feedback, FeedbackFilters, feedbackFiltersSchema } from "../types";
+import { Feedback, FeedbackFilters, feedbackRequestSchema } from "../types";
 
 export async function getFeedbacksAction({
   tenantId,
@@ -10,7 +10,7 @@ export async function getFeedbacksAction({
   tenantId: string;
   filters: FeedbackFilters;
 }): Promise<Feedback[]> {
-  const validatedData = feedbackFiltersSchema.parse({ tenantId, filters });
+  const validatedData = feedbackRequestSchema.parse({ tenantId, filters });
 
   return fetchFeedbacksFromDb(validatedData.tenantId, validatedData.filters);
 }

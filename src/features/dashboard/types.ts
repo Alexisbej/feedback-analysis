@@ -37,6 +37,12 @@ export const feedbackFiltersSchema = z.object({
 });
 export type FeedbackFilters = z.infer<typeof feedbackFiltersSchema>;
 
+export const feedbackRequestSchema = z.object({
+  tenantId: z.string().uuid(),
+  filters: feedbackFiltersSchema,
+});
+export type FeedbackRequestSchema = z.infer<typeof feedbackRequestSchema>;
+
 // Answer schema
 export const answerSchema = z.object({
   id: z.string(),
