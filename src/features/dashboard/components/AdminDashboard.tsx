@@ -1,7 +1,10 @@
+"use client";
 import { FileSpreadsheet, Star, Users, UserSquare2 } from "lucide-react";
 import { FeedbackList } from "./FeedbackList";
 import { SentimentChart } from "./SentimentChart";
 
+import FeedbackInsights from "@/features/feedback-analysis/components/FeedbackInsights";
+import { useState } from "react";
 import { DashboardMetrics } from "../types";
 import { MetricCard } from "./MetricsCard";
 
@@ -17,6 +20,7 @@ export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
     participantsCount,
     unregisteredParticipantsCount,
   } = metrics;
+  const [selectedFeedbackIds, setSelectedFeedbackIds] = useState<string[]>([]);
 
   return (
     <div className="min-h-screen">
@@ -53,7 +57,21 @@ export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
         </div>
 
         <SentimentChart businessId={businessId} />
-        <FeedbackList businessId={businessId} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            <FeedbackList
+              businessId={businessId}
+              onSelectionChange={setSelectedFeedbackIds}
+              selectedIds={selectedFeedbackIds}
+            />
+          </div>
+          <div>
+            <FeedbackInsights
+              businessId={businessId}
+              selectedFeedbackIds={selectedFeedbackIds}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

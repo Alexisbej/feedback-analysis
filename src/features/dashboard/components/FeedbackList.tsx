@@ -8,20 +8,44 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useFeedbacks } from "../hooks/useFeedbacks";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Answer, feedbackFiltersSchema, FeedbackResponse } from "../types";
 import { FeedbackListSkeleton } from "./Skeletons";
 
 interface FeedbackListProps {
   businessId: string;
+  onSelectionChange?: (ids: string[]) => void;
+  selectedIds?: string[];
 }
 
-export function FeedbackList({ businessId }: FeedbackListProps) {
+export function FeedbackList({
+  businessId,
+  onSelectionChange,
+  selectedIds,
+}: FeedbackListProps) {
   const [filters, setFilters] = useState({
     location: "",
     time: "",
     demographics: "",
   });
   const [appliedFilters, setAppliedFilters] = useState(filters);
+
+  const [selectedFeedbacks, setSelectedFeedbacks] = useState<Set<string>>(
+    new Set(selectedIds || []),
+  );
+
+  const toggleFeedbackSelection = (id: string) => {
+    const newSelection = new Set(selectedFeedbacks);
+
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+
+    setSelectedFeedbacks(newSelection);
+    onSelectionChange?.(Array.from(newSelection));
+  };
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useFeedbacks(businessId, appliedFilters);
@@ -106,6 +130,12 @@ export function FeedbackList({ businessId }: FeedbackListProps) {
             {feedbacks.map((fb) => (
               <div key={fb.id} className="p-6">
                 <div className="flex items-center justify-between mb-2">
+                  <Checkbox
+                    checked={selectedFeedbacks.has(fb.id)}
+                    onCheckedChange={() => toggleFeedbackSelection(fb.id)}
+                    id={`select-${fb.id}`}
+                    className="mr-2"
+                  />
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-sm font-medium text-blue-600">

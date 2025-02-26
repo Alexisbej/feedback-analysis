@@ -17,7 +17,6 @@ import { useForm } from "react-hook-form";
 import { createTemplateAction } from "../actions/create-template.action";
 import { CreateTemplateData, createTemplateSchema } from "../types";
 import QuestionList from "./QuestionsList";
-import { SurveyTypeSelector } from "./SurveyTypeSelector";
 
 export const CreateCampaignForm = () => {
   const router = useRouter();
@@ -28,7 +27,6 @@ export const CreateCampaignForm = () => {
   const form = useForm<CreateTemplateData>({
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
-      templateType: "feedback",
       name: "",
       questions: [
         {
@@ -40,22 +38,6 @@ export const CreateCampaignForm = () => {
       tenantId,
     },
   });
-
-  const templateType = form.watch("templateType");
-
-  const handleTemplateTypeChange = (newType: "rating" | "feedback") => {
-    form.reset({
-      ...form.getValues(),
-      templateType: newType,
-      questions: [
-        {
-          text: "",
-          type: newType === "rating" ? "RATING" : "TEXT",
-          options: [],
-        },
-      ],
-    });
-  };
 
   async function onSubmit(data: CreateTemplateData) {
     try {
@@ -76,10 +58,6 @@ export const CreateCampaignForm = () => {
     <div className="bg-white rounded-xl shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 p-6">
-          <SurveyTypeSelector
-            value={templateType}
-            onChange={handleTemplateTypeChange}
-          />
           <FormField
             control={form.control}
             name="name"

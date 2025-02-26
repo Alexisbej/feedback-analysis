@@ -98,8 +98,25 @@ export async function updateFeedbackSentiment(
 }
 
 export function extractSentiment(responseText: string): string | null {
-  const lines = responseText.split("\n");
-  const sentimentLine = lines.find((line) => line.startsWith("0:"));
-  if (!sentimentLine) return null;
-  return sentimentLine.slice(2).trim().replace(/^"|"$/g, "");
+  if (!responseText) return null;
+  const sentimentMatch = responseText.match(/(POSITIVE|NEGATIVE|NEUTRAL)/i);
+  return sentimentMatch ? sentimentMatch[0].toUpperCase() : null;
+}
+
+export async function updateFeedbackWithAnalysis(
+  feedbackId: string,
+  sentiment: FeedbackSentiment,
+  themes: any[],
+  competitors: any[],
+  improvements: any[],
+) {
+  return prisma.feedback.update({
+    where: { id: feedbackId },
+    data: {
+      sentiment,
+      analysisThemes: themes,
+      analysisCompetitors: competitors,
+      analysisImprovements: improvements,
+    },
+  });
 }

@@ -1,11 +1,9 @@
 "use server";
 
 import { auth } from "@/auth";
-import { FeedbackSentiment } from "@prisma/client";
 import {
-  extractSentiment,
   saveFeedbackToDatabase,
-  updateFeedbackSentiment,
+  updateFeedbackWithAnalysis,
 } from "../services/feedback-service";
 import { FeedbackFormValues, feedbackSubmitSchema } from "../types";
 
@@ -24,18 +22,21 @@ export async function submitFeedbackAction(
     userId,
   );
 
-  const res = await fetch(`${process.env.BASE_URL}/api/sentiment`, {
+  const res = await fetch(`${process.env.BASE_URL}/api/feedback/analysis`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content: validatedData.responses }),
   });
-  const sentimentResult = await res.text();
 
-  const sentiment = extractSentiment(
-    sentimentResult,
-  )?.toUpperCase() as FeedbackSentiment;
+  const analysisResult = await res.json();
 
-  await updateFeedbackSentiment(feedback.id, sentiment);
+  await updateFeedbackWithAnalysis(
+    feedback.id,
+    analysisResult.sentiment,
+    analysisResult.themes || [],
+    analysisResult.competitors || [],
+    analysisResult.improvements || [],
+  );
 
   return feedback;
 }

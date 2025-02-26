@@ -9,7 +9,6 @@ import { createTemplateSchema } from "../types";
 
 export type FormValues = {
   tenantId: string;
-  templateType: "rating" | "feedback";
   name: string;
   questions: {
     text: string;
@@ -27,20 +26,18 @@ export const useCreateCampaignForm = () => {
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
       tenantId: tenantId || "",
-      templateType: "rating",
       name: "",
       questions: [
         {
           text: "",
-          type: "RATING",
+          type: "TEXT",
           options: [],
         },
       ],
     },
   });
 
-  const { watch, setValue, reset } = form;
-  const templateType = watch("templateType");
+  const { watch, setValue } = form;
   const questions = watch("questions");
 
   const addQuestion = () => {
@@ -49,7 +46,7 @@ export const useCreateCampaignForm = () => {
         ...questions,
         {
           text: "",
-          type: templateType === "rating" ? "RATING" : "TEXT",
+          type: "TEXT",
           options: [],
         },
       ]);
@@ -61,18 +58,6 @@ export const useCreateCampaignForm = () => {
       "questions",
       questions.filter((_, i) => i !== index),
     );
-  };
-
-  const handleTemplateTypeChange = (newType: "rating" | "feedback") => {
-    reset();
-    setValue("templateType", newType);
-    setValue("questions", [
-      {
-        text: "",
-        type: newType === "rating" ? "RATING" : "TEXT",
-        options: [],
-      },
-    ]);
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -95,11 +80,9 @@ export const useCreateCampaignForm = () => {
 
   return {
     form,
-    templateType,
     questions,
     addQuestion,
     removeQuestion,
     onSubmit,
-    handleTemplateTypeChange,
   };
 };
