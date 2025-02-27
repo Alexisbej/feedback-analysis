@@ -1,4 +1,5 @@
 import { generateQRAction } from "@/features/campaign/actions/generate-qr.action";
+import { DeleteCampaignButton } from "@/features/campaign/components/DeleteCampaignButton";
 
 import { QRDisplay } from "@/features/campaign/components/QRDisplay";
 import { getCampaignTemplate } from "@/features/campaign/services/template-service";
@@ -45,6 +46,10 @@ async function CampaignPage({ params }: CampaignPageProps) {
           templateName={template.name}
           tenantId={template.tenantId}
           feedbackUrl={qrLink?.url}
+        />
+        <DeleteCampaignButton
+          templateId={template.id}
+          templateName={template.name}
         />
 
         {qrLink ? (

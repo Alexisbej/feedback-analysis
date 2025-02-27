@@ -56,29 +56,12 @@ const questionSchema = z
   });
 export type Question = z.infer<typeof questionSchema>;
 
-export const createTemplateSchema = z
-  .object({
-    tenantId: z.string(),
-    templateType: z.enum(["rating", "feedback"]),
-    name: z.string().min(1, "Survey name is required"),
-    questions: z
-      .array(questionSchema)
-      .min(1, "At least one question required")
-      .max(5, "Maximum 5 questions allowed"),
-  })
-  .superRefine((data, ctx) => {
-    if (data.templateType === "rating") {
-      const invalidQuestions = data.questions.filter(
-        (q) => q.type !== "RATING",
-      );
-      if (invalidQuestions.length > 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Rating surveys can only contain rating questions",
-          path: ["questions"],
-        });
-      }
-    }
-    return true;
-  });
+export const createTemplateSchema = z.object({
+  tenantId: z.string(),
+  name: z.string().min(1, "Survey name is required"),
+  questions: z
+    .array(questionSchema)
+    .min(1, "At least one question required")
+    .max(5, "Maximum 5 questions allowed"),
+});
 export type CreateTemplateData = z.infer<typeof createTemplateSchema>;

@@ -8,20 +8,45 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useFeedbacks } from "../hooks/useFeedbacks";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Answer, feedbackFiltersSchema, FeedbackResponse } from "../types";
 import { FeedbackListSkeleton } from "./Skeletons";
 
 interface FeedbackListProps {
   businessId: string;
+  onSelectionChange?: (ids: string[]) => void;
+  selectedIds?: string[];
+  onInitialFeedbacks?: (ids: string[]) => void;
 }
 
-export function FeedbackList({ businessId }: FeedbackListProps) {
+export function FeedbackList({
+  businessId,
+  onSelectionChange,
+  selectedIds,
+}: FeedbackListProps) {
   const [filters, setFilters] = useState({
     location: "",
     time: "",
     demographics: "",
   });
   const [appliedFilters, setAppliedFilters] = useState(filters);
+
+  const [selectedFeedbacks, setSelectedFeedbacks] = useState<Set<string>>(
+    new Set(selectedIds || []),
+  );
+
+  const toggleFeedbackSelection = (id: string) => {
+    const newSelection = new Set(selectedFeedbacks);
+
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+
+    setSelectedFeedbacks(newSelection);
+    onSelectionChange?.(Array.from(newSelection));
+  };
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useFeedbacks(businessId, appliedFilters);
@@ -60,6 +85,15 @@ export function FeedbackList({ businessId }: FeedbackListProps) {
 
   const feedbacks =
     data?.pages.flatMap((page: FeedbackResponse) => page.feedbacks) || [];
+
+  // if (
+  //   feedbacks.length > 0 &&
+  //   onInitialFeedbacks &&
+  //   selectedFeedbacks.size === 0
+  // ) {
+  //   const feedbackIds = feedbacks.map((fb) => fb.id);
+  //   onInitialFeedbacks(feedbackIds);
+  // }
 
   return (
     <div className="mt-8">
@@ -104,8 +138,21 @@ export function FeedbackList({ businessId }: FeedbackListProps) {
         ) : (
           <div className="divide-y divide-gray-200">
             {feedbacks.map((fb) => (
-              <div key={fb.id} className="p-6">
+              <div
+                key={fb.id}
+                className={`p-6 transition-all ${
+                  selectedFeedbacks.has(fb.id)
+                    ? "border-l-4 border-blue-500 bg-blue-50"
+                    : ""
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
+                  <Checkbox
+                    checked={selectedFeedbacks.has(fb.id)}
+                    onCheckedChange={() => toggleFeedbackSelection(fb.id)}
+                    id={`select-${fb.id}`}
+                    className="mr-2"
+                  />
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-sm font-medium text-blue-600">
@@ -133,9 +180,16 @@ export function FeedbackList({ businessId }: FeedbackListProps) {
                   </div>
                 </div>
                 <p className="text-gray-600">{fb.content}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {new Date(fb.createdAt).toLocaleDateString()}
-                </p>
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-sm text-gray-500">
+                    {new Date(fb.createdAt).toLocaleDateString()}
+                  </p>
+                  {selectedFeedbacks.has(fb.id) && (
+                    <div className="text-xs text-blue-600">
+                      Included in analysis
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

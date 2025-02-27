@@ -1,3 +1,5 @@
+import { Competitor, Improvement } from "@/features/dashboard/types";
+import { Theme } from "@/features/feedback-analysis/types";
 import { FeedbackSentiment } from "@prisma/client";
 import { prisma } from "../../../../prisma/prisma";
 import { FeedbackFormValues, Question } from "../types";
@@ -98,8 +100,25 @@ export async function updateFeedbackSentiment(
 }
 
 export function extractSentiment(responseText: string): string | null {
-  const lines = responseText.split("\n");
-  const sentimentLine = lines.find((line) => line.startsWith("0:"));
-  if (!sentimentLine) return null;
-  return sentimentLine.slice(2).trim().replace(/^"|"$/g, "");
+  if (!responseText) return null;
+  const sentimentMatch = responseText.match(/(POSITIVE|NEGATIVE|NEUTRAL)/i);
+  return sentimentMatch ? sentimentMatch[0].toUpperCase() : null;
+}
+
+export async function updateFeedbackWithAnalysis(
+  feedbackId: string,
+  sentiment: FeedbackSentiment,
+  themes: Theme[],
+  competitors: Competitor[],
+  improvements: Improvement[],
+) {
+  return prisma.feedback.update({
+    where: { id: feedbackId },
+    data: {
+      sentiment,
+      analysisThemes: themes,
+      analysisCompetitors: competitors,
+      analysisImprovements: improvements,
+    },
+  });
 }

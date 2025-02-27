@@ -1,7 +1,10 @@
+"use client";
 import { FileSpreadsheet, Star, Users, UserSquare2 } from "lucide-react";
 import { FeedbackList } from "./FeedbackList";
 import { SentimentChart } from "./SentimentChart";
 
+import FeedbackInsights from "@/features/feedback-analysis/components/FeedbackInsights";
+import { useState } from "react";
 import { DashboardMetrics } from "../types";
 import { MetricCard } from "./MetricsCard";
 
@@ -17,6 +20,16 @@ export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
     participantsCount,
     unregisteredParticipantsCount,
   } = metrics;
+  const [selectedFeedbackIds, setSelectedFeedbackIds] = useState<string[]>([]);
+  
+  // Auto-select the 5 most recent feedbacks by default
+  const handleInitialFeedbacks = (initialFeedbacks: string[]) => {
+    // Take up to 5 most recent feedbacks (they're already ordered by date in FeedbackList)
+    const latestFeedbacks = initialFeedbacks.slice(0, 5);
+    if (latestFeedbacks.length > 0) {
+      setSelectedFeedbackIds(latestFeedbacks);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -53,7 +66,22 @@ export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
         </div>
 
         <SentimentChart businessId={businessId} />
-        <FeedbackList businessId={businessId} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            <FeedbackList
+              businessId={businessId}
+              onSelectionChange={setSelectedFeedbackIds}
+              selectedIds={selectedFeedbackIds}
+              onInitialFeedbacks={handleInitialFeedbacks}
+            />
+          </div>
+          <div className="sticky top-24">
+            <FeedbackInsights
+              businessId={businessId}
+              selectedFeedbackIds={selectedFeedbackIds}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

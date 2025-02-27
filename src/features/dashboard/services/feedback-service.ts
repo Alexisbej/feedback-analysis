@@ -69,41 +69,44 @@ export async function fetchFeedbacksFromDb(
   }));
 }
 
-// @TODO REMOVE THIS FAKE DATA
-// eslint-disable-next-line
 export function computeSentimentData(feedbacks: Feedback[] = []) {
-  const demoData = Array.from({ length: 31 }, (_, i) => {
-    const date = new Date(2024, 2, i + 1);
-
-    const isNegativeDay = i % 5 === 0;
-
-    let positive, negative, neutral;
-
-    if (isNegativeDay) {
-      positive = Math.floor(Math.random() * 10) + 2;
-      negative = Math.floor(Math.random() * 20) + 15;
-      neutral = Math.floor(Math.random() * 8) + 2;
-    } else {
-      positive = Math.floor(Math.random() * 20) + 10;
-      negative = Math.floor(Math.random() * 10) + 2;
-      neutral = Math.floor(Math.random() * 8) + 2;
+  const feedbacksByDate = feedbacks.reduce((acc, feedback) => {
+    const date = feedback.createdAt.split("T")[0]; // Get YYYY-MM-DD format
+    if (!acc[date]) {
+      acc[date] = { positive: 0, negative: 0, neutral: 0 };
     }
 
-    const ratio =
-      negative === 0 && neutral === 0
-        ? positive > 0
-          ? positive
-          : 1
-        : (positive + neutral * 0.5) / (negative + neutral * 0.5);
+    if (feedback.sentiment === "POSITIVE") {
+      acc[date].positive += 1;
+    } else if (feedback.sentiment === "NEGATIVE") {
+      acc[date].negative += 1;
+    } else if (feedback.sentiment === "NEUTRAL") {
+      acc[date].neutral += 0.5;
+    }
 
-    return {
-      date: date.toISOString().split("T")[0],
-      ratio,
-      positive,
-      negative,
-      neutral,
-    };
-  });
+    return acc;
+  }, {} as Record<string, { positive: number; negative: number; neutral: number }>);
 
-  return demoData;
+  const sentimentData = Object.entries(feedbacksByDate)
+    .map(([date, counts]) => {
+      const { positive, negative, neutral } = counts;
+
+      const ratio =
+        negative === 0 && neutral === 0
+          ? positive > 0
+            ? positive
+            : 1
+          : (positive + neutral * 0.5) / (negative + neutral * 0.5);
+
+      return {
+        date,
+        ratio,
+        positive,
+        negative,
+        neutral,
+      };
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sort by date
+
+  return sentimentData;
 }

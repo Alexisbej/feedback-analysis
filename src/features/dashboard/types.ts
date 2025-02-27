@@ -62,6 +62,29 @@ export const answerSchema = z.object({
 });
 export type Answer = z.infer<typeof answerSchema>;
 
+export const themeSchema = z.object({
+  name: z.string(),
+  subthemes: z.array(z.string()),
+  frequency: z.union([z.number(), z.string()]).optional(),
+  quotes: z.array(z.string()).optional(),
+});
+export type Theme = z.infer<typeof themeSchema>;
+
+export const competitorSchema = z.object({
+  name: z.string(),
+  comparisonPoints: z.array(z.string()),
+  frequency: z.union([z.number(), z.string()]).optional(),
+});
+export type Competitor = z.infer<typeof competitorSchema>;
+
+export const improvementSchema = z.object({
+  name: z.string(),
+  priority: z.enum(["HIGH", "MEDIUM", "LOW"]),
+  suggestions: z.array(z.string()),
+  count: z.number().optional(),
+});
+export type Improvement = z.infer<typeof improvementSchema>;
+
 // Feedback schema
 export const feedbackSchema = z.object({
   id: z.string(),
@@ -77,6 +100,9 @@ export const feedbackSchema = z.object({
     })
     .nullable()
     .optional(),
+  analysisThemes: z.array(themeSchema).nullable().optional(),
+  analysisCompetitors: z.array(competitorSchema).nullable().optional(),
+  analysisImprovements: z.array(improvementSchema).nullable().optional(),
 });
 export type Feedback = z.infer<typeof feedbackSchema>;
 
