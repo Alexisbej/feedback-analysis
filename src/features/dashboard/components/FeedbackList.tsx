@@ -16,6 +16,7 @@ interface FeedbackListProps {
   businessId: string;
   onSelectionChange?: (ids: string[]) => void;
   selectedIds?: string[];
+  onInitialFeedbacks?: (ids: string[]) => void;
 }
 
 export function FeedbackList({
@@ -85,6 +86,15 @@ export function FeedbackList({
   const feedbacks =
     data?.pages.flatMap((page: FeedbackResponse) => page.feedbacks) || [];
 
+  // if (
+  //   feedbacks.length > 0 &&
+  //   onInitialFeedbacks &&
+  //   selectedFeedbacks.size === 0
+  // ) {
+  //   const feedbackIds = feedbacks.map((fb) => fb.id);
+  //   onInitialFeedbacks(feedbackIds);
+  // }
+
   return (
     <div className="mt-8">
       <div className="flex items-center gap-4 mb-4">
@@ -128,7 +138,14 @@ export function FeedbackList({
         ) : (
           <div className="divide-y divide-gray-200">
             {feedbacks.map((fb) => (
-              <div key={fb.id} className="p-6">
+              <div
+                key={fb.id}
+                className={`p-6 transition-all ${
+                  selectedFeedbacks.has(fb.id)
+                    ? "border-l-4 border-blue-500 bg-blue-50"
+                    : ""
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <Checkbox
                     checked={selectedFeedbacks.has(fb.id)}
@@ -163,9 +180,16 @@ export function FeedbackList({
                   </div>
                 </div>
                 <p className="text-gray-600">{fb.content}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {new Date(fb.createdAt).toLocaleDateString()}
-                </p>
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-sm text-gray-500">
+                    {new Date(fb.createdAt).toLocaleDateString()}
+                  </p>
+                  {selectedFeedbacks.has(fb.id) && (
+                    <div className="text-xs text-blue-600">
+                      Included in analysis
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

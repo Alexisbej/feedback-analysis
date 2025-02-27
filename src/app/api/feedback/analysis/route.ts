@@ -66,7 +66,9 @@ export async function POST(req: Request) {
         .array(
           z.object({
             name: z.string(),
+            frequency: z.number(),
             subthemes: z.array(z.string()),
+            quotes: z.array(z.string()),
           }),
         )
         .optional(),
@@ -74,6 +76,7 @@ export async function POST(req: Request) {
         .array(
           z.object({
             name: z.string(),
+            frequency: z.string(),
             comparisonPoints: z.array(z.string()),
           }),
         )

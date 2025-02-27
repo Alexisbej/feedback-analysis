@@ -46,7 +46,7 @@ function CompetitorCard({ competitor }: { competitor: CompetitorMention }) {
     <Card>
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold">{competitor.competitor}</h3>
+          <h3 className="text-lg font-semibold">{competitor.name}</h3>
           {competitor.sentiment && (
             <span
               className={`text-xs px-2 py-1 rounded-full ${sentimentColor}`}
@@ -84,22 +84,6 @@ function CompetitorCard({ competitor }: { competitor: CompetitorMention }) {
               </div>
             </div>
           )}
-
-        {competitor.context && competitor.context.length > 0 && (
-          <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Insights</h4>
-            <div className="flex flex-wrap gap-2">
-              {competitor.context.map((insight, i) => (
-                <span
-                  key={i}
-                  className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full"
-                >
-                  {insight}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

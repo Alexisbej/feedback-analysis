@@ -8,6 +8,7 @@ interface ImprovementAnalysisViewProps {
 export default function ImprovementAnalysisView({
   data,
 }: ImprovementAnalysisViewProps) {
+  console.log(data);
   if (!data || !data.improvements || data.improvements.length === 0) {
     return (
       <div>No improvement suggestions detected in the analyzed feedback.</div>
@@ -15,9 +16,12 @@ export default function ImprovementAnalysisView({
   }
 
   const priorityOrder = { HIGH: 3, MEDIUM: 2, LOW: 1 };
-  const sortedImprovements = [...data.improvements].sort(
-    (a, b) => priorityOrder[b.priority] - priorityOrder[a.priority],
-  );
+  const sortedImprovements = [...data.improvements].sort((a, b) => {
+    // Handle both priority and impact fields for sorting
+    const aPriority = a.priority || "MEDIUM";
+    const bPriority = b.priority || "MEDIUM";
+    return priorityOrder[bPriority] - priorityOrder[aPriority];
+  });
 
   return (
     <div className="space-y-6">
@@ -35,15 +39,7 @@ function ImprovementCard({ improvement }: { improvement: Improvement }) {
     HIGH: "bg-red-100 text-red-800",
     MEDIUM: "bg-yellow-100 text-yellow-800",
     LOW: "bg-blue-100 text-blue-800",
-  }[improvement.impact];
-
-  const sentimentColor =
-    improvement.sentiment &&
-    {
-      POSITIVE: "bg-green-100 text-green-800",
-      NEUTRAL: "bg-gray-100 text-gray-800",
-      NEGATIVE: "bg-red-100 text-red-800",
-    }[improvement.sentiment];
+  }[improvement.priority || "MEDIUM"];
 
   return (
     <Card>
@@ -51,40 +47,28 @@ function ImprovementCard({ improvement }: { improvement: Improvement }) {
         <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
           <h3 className="text-lg font-semibold">{improvement.area}</h3>
           <div className="flex gap-2">
-            <span className={`text-xs px-2 py-1 rounded-full ${priorityColor}`}>
-              {improvement.impact.toLowerCase()} impact
-            </span>
-            {improvement.sentiment && (
+            {improvement.priority && (
               <span
-                className={`text-xs px-2 py-1 rounded-full ${sentimentColor}`}
+                className={`text-xs px-2 py-1 rounded-full ${priorityColor}`}
               >
-                {improvement.sentiment.toLowerCase()}
+                {improvement.priority} impact
               </span>
             )}
           </div>
         </div>
 
-        {/* Update these property names to match your schema */}
-        {improvement.supportingFeedback &&
-          improvement.supportingFeedback.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-sm font-medium mb-2">Supporting feedback</h4>
-              <ul className="list-disc pl-5 space-y-1">
-                {improvement.supportingFeedback.map((point, i) => (
-                  <li key={i} className="text-sm text-gray-700">
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-        {improvement.potentialBenefit && (
+        {improvement.suggestions?.length > 0 && (
           <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Potential benefit</h4>
-            <p className="text-sm text-gray-700">
-              {improvement.potentialBenefit}
-            </p>
+            <h4 className="text-sm font-medium mb-2">
+              Improvement suggestions:
+            </h4>
+            <ul className="list-disc pl-5 space-y-1">
+              {improvement.suggestions.map((point, i) => (
+                <li key={i} className="text-sm text-gray-700">
+                  {point}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </CardContent>

@@ -1,3 +1,4 @@
+import { Feedback, Improvement } from "@/features/dashboard/types";
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../prisma/prisma";
 
@@ -29,11 +30,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No feedback found" }, { status: 404 });
     }
 
-    // Aggregate the analysis from all selected feedback
     const aggregatedAnalysis = {
-      themes: aggregateThemes(feedbacks),
-      competitors: aggregateCompetitors(feedbacks),
-      improvements: aggregateImprovements(feedbacks),
+      themes: aggregateThemes(feedbacks as Feedback[]),
+      competitors: aggregateCompetitors(feedbacks as Feedback[]),
+      improvements: aggregateImprovements(feedbacks as Feedback[]),
     };
 
     return NextResponse.json(aggregatedAnalysis);
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   }
 }
 
-function aggregateThemes(feedbacks) {
+function aggregateThemes(feedbacks: Feedback[]) {
   const themesMap = new Map();
 
   feedbacks.forEach((feedback) => {
@@ -66,7 +66,6 @@ function aggregateThemes(feedbacks) {
       } else {
         const existing = themesMap.get(theme.name);
         existing.frequency += 1;
-        // Merge subthemes
         theme.subthemes?.forEach((subtheme) => {
           if (!existing.subthemes.includes(subtheme)) {
             existing.subthemes.push(subtheme);
@@ -76,7 +75,6 @@ function aggregateThemes(feedbacks) {
     });
   });
 
-  // Convert frequencies to percentages
   const total = feedbacks.length;
   const result = Array.from(themesMap.values()).map((theme) => ({
     ...theme,
@@ -86,7 +84,7 @@ function aggregateThemes(feedbacks) {
   return result;
 }
 
-function aggregateCompetitors(feedbacks) {
+function aggregateCompetitors(feedbacks: Feedback[]) {
   const competitorsMap = new Map();
 
   feedbacks.forEach((feedback) => {
@@ -106,7 +104,6 @@ function aggregateCompetitors(feedbacks) {
       } else {
         const existing = competitorsMap.get(competitor.name);
         existing.frequency += 1;
-        // Merge comparison points
         competitor.comparisonPoints?.forEach((point) => {
           if (!existing.comparisonPoints.includes(point)) {
             existing.comparisonPoints.push(point);
@@ -116,7 +113,6 @@ function aggregateCompetitors(feedbacks) {
     });
   });
 
-  // Convert frequencies to percentages
   const total = feedbacks.length;
   const result = Array.from(competitorsMap.values()).map((competitor) => ({
     ...competitor,
@@ -126,7 +122,7 @@ function aggregateCompetitors(feedbacks) {
   return result;
 }
 
-function aggregateImprovements(feedbacks) {
+function aggregateImprovements(feedbacks: Feedback[]) {
   const improvementsMap = new Map();
 
   feedbacks.forEach((feedback) => {
@@ -143,16 +139,16 @@ function aggregateImprovements(feedbacks) {
           count: 1,
         });
       } else {
-        const existing = improvementsMap.get(improvement.name);
-        existing.count += 1;
-        // Merge suggestions
+        const existing: Improvement = improvementsMap.get(improvement.name);
+        if (existing.count) {
+          existing.count += 1;
+        }
         improvement.suggestions?.forEach((suggestion) => {
           if (!existing.suggestions.includes(suggestion)) {
             existing.suggestions.push(suggestion);
           }
         });
 
-        // Keep the highest priority
         const priorityOrder = { HIGH: 3, MEDIUM: 2, LOW: 1 };
         if (
           priorityOrder[improvement.priority] > priorityOrder[existing.priority]
@@ -163,10 +159,9 @@ function aggregateImprovements(feedbacks) {
     });
   });
 
-  // Sort by count (descending)
   const result = Array.from(improvementsMap.values())
     .sort((a, b) => b.count - a.count)
-    .map(({ count, ...rest }) => rest);
+    .map(({ ...rest }) => rest);
 
   return result;
 }

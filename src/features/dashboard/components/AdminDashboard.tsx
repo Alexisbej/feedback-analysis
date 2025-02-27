@@ -21,6 +21,15 @@ export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
     unregisteredParticipantsCount,
   } = metrics;
   const [selectedFeedbackIds, setSelectedFeedbackIds] = useState<string[]>([]);
+  
+  // Auto-select the 5 most recent feedbacks by default
+  const handleInitialFeedbacks = (initialFeedbacks: string[]) => {
+    // Take up to 5 most recent feedbacks (they're already ordered by date in FeedbackList)
+    const latestFeedbacks = initialFeedbacks.slice(0, 5);
+    if (latestFeedbacks.length > 0) {
+      setSelectedFeedbackIds(latestFeedbacks);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -63,9 +72,10 @@ export function AdminDashboard({ metrics, businessId }: AdminDashboardProps) {
               businessId={businessId}
               onSelectionChange={setSelectedFeedbackIds}
               selectedIds={selectedFeedbackIds}
+              onInitialFeedbacks={handleInitialFeedbacks}
             />
           </div>
-          <div>
+          <div className="sticky top-24">
             <FeedbackInsights
               businessId={businessId}
               selectedFeedbackIds={selectedFeedbackIds}

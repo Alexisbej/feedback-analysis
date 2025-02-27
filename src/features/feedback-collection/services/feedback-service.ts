@@ -1,3 +1,5 @@
+import { Competitor, Improvement } from "@/features/dashboard/types";
+import { Theme } from "@/features/feedback-analysis/types";
 import { FeedbackSentiment } from "@prisma/client";
 import { prisma } from "../../../../prisma/prisma";
 import { FeedbackFormValues, Question } from "../types";
@@ -106,9 +108,9 @@ export function extractSentiment(responseText: string): string | null {
 export async function updateFeedbackWithAnalysis(
   feedbackId: string,
   sentiment: FeedbackSentiment,
-  themes: any[],
-  competitors: any[],
-  improvements: any[],
+  themes: Theme[],
+  competitors: Competitor[],
+  improvements: Improvement[],
 ) {
   return prisma.feedback.update({
     where: { id: feedbackId },

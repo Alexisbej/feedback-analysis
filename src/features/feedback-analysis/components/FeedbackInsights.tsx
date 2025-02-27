@@ -51,9 +51,15 @@ export default function FeedbackInsights({
           <Brain className="h-16 w-16 text-blue-200" />
           <p className="mt-4 text-lg">Select feedback to view insights</p>
           <p className="text-sm text-gray-500 mb-6">
-            Select one or more feedback items to view their pre-computed
-            analysis.
+            Select one or more feedback items from the list on the left to view their analysis.
           </p>
+          <div className="text-sm bg-blue-50 p-4 rounded-md border border-blue-200 max-w-md">
+            <p className="font-medium text-blue-700 mb-2">Pro Tip:</p>
+            <p className="text-gray-600">
+              For best results, select multiple related feedback items. 
+              This helps the AI identify stronger patterns and provide more accurate insights.
+            </p>
+          </div>
         </div>
       );
     }
@@ -61,10 +67,14 @@ export default function FeedbackInsights({
     if (isLoading) {
       return (
         <div className="flex flex-col items-center justify-center p-12">
-          <div className="animate-pulse flex space-x-4">
-            <Brain className="h-12 w-12 text-blue-500" />
+          <div className="animate-pulse flex flex-col items-center">
+            <Brain className="h-12 w-12 text-blue-500 animate-bounce" />
+            <div className="h-2 bg-blue-200 rounded w-24 mt-4"></div>
+            <div className="h-2 bg-blue-200 rounded w-32 mt-2"></div>
+            <div className="h-2 bg-blue-200 rounded w-20 mt-2"></div>
           </div>
-          <p className="mt-4 text-lg">Loading analysis...</p>
+          <p className="mt-6 text-lg">Analyzing your feedback...</p>
+          <p className="text-sm text-gray-500">Extracting insights from {selectedFeedbackIds.length} feedback items</p>
         </div>
       );
     }
@@ -72,7 +82,11 @@ export default function FeedbackInsights({
     if (!analysisData) {
       return (
         <div className="flex flex-col items-center justify-center p-12">
-          <p className="text-lg">No analysis available</p>
+          <p className="text-lg font-medium text-red-500">No analysis available</p>
+          <p className="text-sm text-gray-500 mt-2">
+            There was a problem analyzing these feedback items. 
+            Try selecting different feedback or contact support.
+          </p>
         </div>
       );
     }
@@ -102,7 +116,10 @@ export default function FeedbackInsights({
       <CardHeader>
         <CardTitle className="text-xl font-bold">Feedback Analysis</CardTitle>
         <CardDescription>
-          View insights automatically extracted from your customer feedback
+          {selectedFeedbackIds.length > 0 
+            ? `Analyzing ${selectedFeedbackIds.length} selected feedback${selectedFeedbackIds.length > 1 ? 's' : ''}`
+            : 'View insights automatically extracted from your customer feedback'
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>

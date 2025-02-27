@@ -41,3 +41,21 @@ export async function getCampaignTemplate(
     },
   });
 }
+
+export async function deleteTemplate(templateId: string) {
+  try {
+    await prisma.feedbackLink.updateMany({
+      where: { templateId },
+      data: { isActive: false },
+    });
+
+    await prisma.template.delete({
+      where: { id: templateId },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting template:", error);
+    throw error;
+  }
+}

@@ -11,7 +11,7 @@ export async function requestFeedbackAnalysis(
   businessId: string,
   feedbackIds: string[],
   analysisType: AnalysisType,
-): Promise<any> {
+): Promise<AnalysisResult> {
   try {
     const response = await fetch(`/api/feedback/analysis`, {
       method: "POST",
@@ -45,7 +45,7 @@ export async function saveAnalysisResult(
     data: {
       tenantId: businessId,
       type: analysisType,
-      result: result as any, // JSON data will be stored
+      result: result,
       createdAt: new Date(),
     },
   });
